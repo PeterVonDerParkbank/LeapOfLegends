@@ -2,6 +2,9 @@ import Platform from './js/platform.js';
 import Ground from './js/ground.js';
 import StartButton from './js/startButton.js';
 import GameOverButton from './js/gameOverButton.js';
+import Score from './js/score.js';
+
+
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -17,7 +20,7 @@ let player = {
     dy: 0,
     gravity: 0.1,
     jumpStrength: -7,
-    speed: 3
+    speed: 3.3
 };
 
 let ground = new Ground(0, canvas.height - 50, canvas.width, 50);
@@ -32,6 +35,7 @@ let scrolling = false;
 let targetPlatformY = 0;
 let gameStarted = false;
 let gameOver = false;
+const score = new Score();
 const maxPlatforms = 5; // Maximum number of platforms
 
 function drawPlayer() {
@@ -75,7 +79,7 @@ function generatePlatform() {
 function update() {
     if (!gameStarted) return;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
     player.dy += player.gravity;
     player.y += player.dy;
 
@@ -128,10 +132,20 @@ function update() {
             scrolling = false;
         }
     }
+    // Increment score based on player's vertical position
+    if (player.dy < 0) {
+        score.increment(1);
+    }
 
+    score.draw(ctx);
+
+    checkCollision();
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
     drawPlayer();
     drawPlatforms();
-    checkCollision();
+
     requestAnimationFrame(update);
 }
 
@@ -179,7 +193,7 @@ function drawGameOverScreen() {
     drawPlatforms();
     ground.draw(ctx);
     gameOverButton.draw(ctx);
-    console.log('Game over!');
+    score.draw(ctx);
 }
 
 function handleClick(event) {
