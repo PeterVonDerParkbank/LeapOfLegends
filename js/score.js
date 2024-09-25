@@ -2,8 +2,8 @@ export default class Score {
     constructor() {
         this.score = 0;
     }
-    increment(points) {
-        this.score += points;
+    increment() {
+        this.score += 10;
     }
     
     reset() {

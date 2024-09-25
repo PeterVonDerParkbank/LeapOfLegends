@@ -133,19 +133,22 @@ function update() {
         }
     }
     // Increment score based on player's vertical position
-    if (player.dy < 0) {
-        score.increment(1);
-    }
+    platforms.forEach(platform => {
+        if (player.dy < 0 && player.y < platform.y && !platform.passed) {
+            platform.passed = true;
+            score.increment();
+        }
+    });
 
-    score.draw(ctx);
+    
 
     checkCollision();
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
     drawPlayer();
     drawPlatforms();
-
+    score.draw(ctx);
     requestAnimationFrame(update);
 }
 
@@ -172,10 +175,12 @@ function handleTouch(event) {
 function startGame() {
     gameStarted = true;
     gameOver = false;
+    score.reset();
     player.dy = player.jumpStrength; // Start jumping
     player.y = canvas.height - 50; // Reset player position
     player.x = canvas.width / 2 - 25; // Reset player position
     platforms = [new Platform(100, 500, 100, 10)]; // Reset platforms
+    platforms.forEach(platform => platform.passed = false); // Reset passed attribute
     update();
 }
 
@@ -185,6 +190,11 @@ function drawStartScreen() {
     drawPlatforms();
     ground.draw(ctx);
     startButton.draw(ctx);
+
+    // Display high score
+    ctx.fillStyle = 'black';
+    ctx.font = '20px Arial';
+    ctx.fillText(`High Score: ${getHighScore()}`, 10, 60);
 }
 
 function drawGameOverScreen() {
@@ -194,6 +204,19 @@ function drawGameOverScreen() {
     ground.draw(ctx);
     gameOverButton.draw(ctx);
     score.draw(ctx);
+
+    // Display high score
+    ctx.fillStyle = 'black';
+    ctx.font = '20px Arial';
+    ctx.fillText(`High Score: ${getHighScore()}`, 10, 60);
+
+    // Save the score to localStorage
+    localStorage.setItem('highScore', Math.max(score.score, getHighScore()));
+    console.log('Game over!');
+}
+
+function getHighScore() {
+    return parseInt(localStorage.getItem('highScore')) || 0;
 }
 
 function handleClick(event) {
