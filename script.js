@@ -2,6 +2,9 @@ import Platform from './js/platform.js';
 import Ground from './js/ground.js';
 import StartButton from './js/startButton.js';
 import GameOverButton from './js/gameOverButton.js';
+import Score from './js/score.js';
+
+
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -17,7 +20,7 @@ let player = {
     dy: 0,
     gravity: 0.1,
     jumpStrength: -7,
-    speed: 3
+    speed: 3.3
 };
 
 let ground = new Ground(0, canvas.height - 50, canvas.width, 50);
@@ -32,6 +35,7 @@ let scrolling = false;
 let targetPlatformY = 0;
 let gameStarted = false;
 let gameOver = false;
+const score = new Score();
 const maxPlatforms = 5; // Maximum number of platforms
 
 function drawPlayer() {
@@ -75,7 +79,7 @@ function generatePlatform() {
 function update() {
     if (!gameStarted) return;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
     player.dy += player.gravity;
     player.y += player.dy;
 
@@ -128,10 +132,23 @@ function update() {
             scrolling = false;
         }
     }
+    // Increment score based on player's vertical position
+    platforms.forEach(platform => {
+        if (player.dy < 0 && player.y < platform.y && !platform.passed) {
+            platform.passed = true;
+            score.increment();
+        }
+    });
+
+    
+
+    checkCollision();
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     drawPlayer();
     drawPlatforms();
-    checkCollision();
+    score.draw(ctx);
     requestAnimationFrame(update);
 }
 
@@ -158,10 +175,12 @@ function handleTouch(event) {
 function startGame() {
     gameStarted = true;
     gameOver = false;
+    score.reset();
     player.dy = player.jumpStrength; // Start jumping
     player.y = canvas.height - 50; // Reset player position
     player.x = canvas.width / 2 - 25; // Reset player position
     platforms = [new Platform(100, 500, 100, 10)]; // Reset platforms
+    platforms.forEach(platform => platform.passed = false); // Reset passed attribute
     update();
 }
 
@@ -171,6 +190,11 @@ function drawStartScreen() {
     drawPlatforms();
     ground.draw(ctx);
     startButton.draw(ctx);
+
+    // Display high score
+    ctx.fillStyle = 'black';
+    ctx.font = '20px Arial';
+    ctx.fillText(`High Score: ${getHighScore()}`, 10, 60);
 }
 
 function drawGameOverScreen() {
@@ -179,7 +203,20 @@ function drawGameOverScreen() {
     drawPlatforms();
     ground.draw(ctx);
     gameOverButton.draw(ctx);
+    score.draw(ctx);
+
+    // Display high score
+    ctx.fillStyle = 'black';
+    ctx.font = '20px Arial';
+    ctx.fillText(`High Score: ${getHighScore()}`, 10, 60);
+
+    // Save the score to localStorage
+    localStorage.setItem('highScore', Math.max(score.score, getHighScore()));
     console.log('Game over!');
+}
+
+function getHighScore() {
+    return parseInt(localStorage.getItem('highScore')) || 0;
 }
 
 function handleClick(event) {
