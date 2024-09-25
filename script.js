@@ -1,6 +1,7 @@
 import Platform from './js/platform.js';
 import Ground from './js/ground.js';
 import StartButton from './js/startButton.js';
+import GameOverButton from './js/gameOverButton.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -21,6 +22,7 @@ let player = {
 
 let ground = new Ground(0, canvas.height - 50, canvas.width, 50);
 let startButton = new StartButton(canvas.width / 2 - 50, canvas.height / 2 - 25, 100, 50, 'Start');
+let gameOverButton = new GameOverButton(canvas.width / 2 - 50, canvas.height / 2 - 25, 100, 50, 'Restart');
 
 let platforms = [
     new Platform(100, 500, 100, 10),
@@ -79,9 +81,7 @@ function update() {
 
     if (player.y + player.height > canvas.height) {
         gameOver = true;
-        setTimeout(() => {
-            alert("Game Over!");
-        }, 333);
+        drawGameOverScreen();
         return;
     }
 
@@ -157,7 +157,11 @@ function handleTouch(event) {
 
 function startGame() {
     gameStarted = true;
+    gameOver = false;
     player.dy = player.jumpStrength; // Start jumping
+    player.y = canvas.height - 50; // Reset player position
+    player.x = canvas.width / 2 - 25; // Reset player position
+    platforms = [new Platform(100, 500, 100, 10)]; // Reset platforms
     update();
 }
 
@@ -167,17 +171,53 @@ function drawStartScreen() {
     drawPlatforms();
     ground.draw(ctx);
     startButton.draw(ctx);
+}
 
-    canvas.addEventListener('click', function onClick(event) {
-        const rect = canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
+function drawGameOverScreen() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawPlayer();
+    drawPlatforms();
+    ground.draw(ctx);
+    gameOverButton.draw(ctx);
+    console.log('Game over!');
+}
 
+function handleClick(event) {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    if (!gameStarted && !gameOver) {
         if (startButton.isClicked(x, y)) {
-            canvas.removeEventListener('click', onClick);
             startGame();
         }
-    });
+    } else if (gameOver) {
+        if (gameOverButton.isClicked(x, y)) {
+            startGame();
+        }
+    }
 }
+
+function handleTouchStart(event) {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.touches[0].clientX - rect.left;
+    const y = event.touches[0].clientY - rect.top;
+
+    if (!gameStarted && !gameOver) {
+        if (startButton.isClicked(x, y)) {
+            startGame();
+        }
+    } else if (gameOver) {
+        if (gameOverButton.isClicked(x, y)) {
+            startGame();
+        }
+    }
+
+    // Prevent default behavior to avoid scrolling
+    event.preventDefault();
+}
+
+canvas.addEventListener('click', handleClick);
+canvas.addEventListener('touchstart', handleTouchStart);
 
 drawStartScreen();
