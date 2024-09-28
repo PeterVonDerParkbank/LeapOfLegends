@@ -1,9 +1,9 @@
-import Platform from './platform.js';
-import Ground from './ground.js';
-import StartButton from './startButton.js';
-import GameOverButton from './gameOverButton.js';
-import Score from './score.js';
-import { db, doc, getDoc, setDoc } from './firebase.js';
+import Platform from './Elements/platform.js';
+import Ground from './Elements/ground.js';
+import StartButton from './Buttons/startButton.js';
+import GameOverButton from './Buttons/gameOverButton.js';
+import Score from './Score/score.js';
+import { db, doc, getDoc, setDoc } from './Firebase/firebase.js';
 
 
 
