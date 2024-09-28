@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "firebase": "^10.13.2",
+    "vite": "^5.4.8"
+  },
+  "scripts": {
+    "dev": "vite"
+  }
+}

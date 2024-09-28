@@ -1,8 +1,9 @@
-import Platform from './js/platform.js';
-import Ground from './js/ground.js';
-import StartButton from './js/startButton.js';
-import GameOverButton from './js/gameOverButton.js';
-import Score from './js/score.js';
+import Platform from './platform.js';
+import Ground from './ground.js';
+import StartButton from './startButton.js';
+import GameOverButton from './gameOverButton.js';
+import Score from './score.js';
+import { db, doc, getDoc, setDoc } from './firebase.js';
 
 
 
@@ -184,7 +185,7 @@ function startGame() {
     update();
 }
 
-function drawStartScreen() {
+async function drawStartScreen() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPlayer();
     drawPlatforms();
@@ -194,10 +195,10 @@ function drawStartScreen() {
     // Display high score
     ctx.fillStyle = 'black';
     ctx.font = '20px Arial';
-    ctx.fillText(`High Score: ${getHighScore()}`, 10, 60);
+    ctx.fillText(`High Score: ${await getHighScore()}`, 10, 60);
 }
 
-function drawGameOverScreen() {
+async function drawGameOverScreen() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPlayer();
     drawPlatforms();
@@ -208,17 +209,23 @@ function drawGameOverScreen() {
     // Display high score
     ctx.fillStyle = 'black';
     ctx.font = '20px Arial';
-    ctx.fillText(`High Score: ${getHighScore()}`, 10, 60);
+    ctx.fillText(`High Score: ${await getHighScore()}`, 10, 60);
 
-    // Save the score to localStorage
-    localStorage.setItem('highScore', Math.max(score.score, getHighScore()));
+    // Save the score to Firestore
+    const highScore = Math.max(score.score, await getHighScore());
+    await setDoc(doc(db, 'scores', 'highScore'), { score: highScore });
+
     console.log('Game over!');
 }
 
-function getHighScore() {
-    return parseInt(localStorage.getItem('highScore')) || 0;
+async function getHighScore() {
+    const highScoreDoc = await getDoc(doc(db, 'scores', 'highScore'));
+    if (highScoreDoc.exists()) {
+        return highScoreDoc.data().score;
+    } else {
+        return 0;
+    }
 }
-
 function handleClick(event) {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -257,4 +264,6 @@ function handleTouchStart(event) {
 canvas.addEventListener('click', handleClick);
 canvas.addEventListener('touchstart', handleTouchStart);
 
-drawStartScreen();
+(async function() {
+    await drawStartScreen();
+})();
