@@ -96,17 +96,10 @@ function update(currentTime) {
     if (!gameStarted) return;
     delta_time = currentTime - previousTime;
     delta_time_multiplier = delta_time / interval;
-    console.log(delta_time_multiplier);
-    player.dy += player.gravity;
-    console.log(player.dy);
-    console.log(player.y);
+    player.dy += player.gravity*delta_time_multiplier;
     player.y += player.dy*delta_time_multiplier;
-    console.log(player.y);
-    console.log("-------------")
     
     if (player.y + player.height > canvas.height) {
-        console.log(player.y + player.height);
-        console.log(canvas.height);
         gameOver = true;
         drawGameOverScreen();
         return;
