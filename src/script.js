@@ -3,7 +3,7 @@ import Ground from './Elements/ground.js';
 import StartButton from './Buttons/startButton.js';
 import GameOverButton from './Buttons/gameOverButton.js';
 import Score from './Score/score.js';
-import { db, doc, getDoc, setDoc } from './Firebase/firebase.js';
+import { auth, db, doc, getDoc, setDoc } from './Firebase/firebase.js';
 
 
 
@@ -37,11 +37,20 @@ let targetPlatformY = 0;
 let gameStarted = false;
 let gameOver = false;
 const score = new Score();
+const userId = auth.currentUser ? auth.currentUser.uid : null;
 const maxPlatforms = 5; // Maximum number of platforms
+const playerImage = new Image();
+playerImage.src = '/src/assets/images/moo_base.png';
+
 
 function drawPlayer() {
-    ctx.fillStyle = 'green';
-    ctx.fillRect(player.x, player.y, player.width, player.height);
+    if (playerImage.complete) {
+        ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
+    } else {
+        playerImage.onload = () => {
+            ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
+        };
+    }
 }
 
 function drawPlatforms() {
@@ -213,7 +222,7 @@ async function drawGameOverScreen() {
 
     // Save the score to Firestore
     const highScore = Math.max(score.score, await getHighScore());
-    await setDoc(doc(db, 'scores', 'highScore'), { score: highScore });
+    await setDoc(doc(db, 'scores', 'highScore'), { score: highScore , creatorId: userId});
 
     console.log('Game over!');
 }
