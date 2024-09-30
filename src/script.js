@@ -19,8 +19,8 @@ let player = {
     width: 50,
     height: 50,
     dy: 0,
-    gravity: 0.1,
-    jumpStrength: -7,
+    gravity: 0.2,
+    jumpStrength: -9.5,
     speed: 3.3
 };
 
@@ -29,7 +29,7 @@ let startButton = new StartButton(canvas.width / 2 - 50, canvas.height / 2 - 25,
 let gameOverButton = new GameOverButton(canvas.width / 2 - 50, canvas.height / 2 - 25, 100, 50, 'Restart');
 
 let platforms = [
-    new Platform(100, 500, 100, 10),
+    new Platform(100, 300, 100, 10),
 ];
 
 let scrolling = false;
@@ -41,6 +41,12 @@ const userId = auth.currentUser ? auth.currentUser.uid : null;
 const maxPlatforms = 5; // Maximum number of platforms
 const playerImage = new Image();
 playerImage.src = '/src/assets/images/moo_base.png';
+
+let frames_per_second = 60;
+let previousTime = performance.now();
+let interval = 1000 / frames_per_second;
+let delta_time_multiplier = 1;
+let delta_time = 0;
 
 
 function drawPlayer() {
@@ -86,14 +92,21 @@ function generatePlatform() {
     platforms.push(new Platform(newX, newY, platformWidth, platformHeight));
 }
 
-function update() {
+function update(currentTime) {
     if (!gameStarted) return;
-
-    
+    delta_time = currentTime - previousTime;
+    delta_time_multiplier = delta_time / interval;
+    console.log(delta_time_multiplier);
     player.dy += player.gravity;
-    player.y += player.dy;
-
+    console.log(player.dy);
+    console.log(player.y);
+    player.y += player.dy*delta_time_multiplier;
+    console.log(player.y);
+    console.log("-------------")
+    
     if (player.y + player.height > canvas.height) {
+        console.log(player.y + player.height);
+        console.log(canvas.height);
         gameOver = true;
         drawGameOverScreen();
         return;
@@ -159,6 +172,7 @@ function update() {
     drawPlayer();
     drawPlatforms();
     score.draw(ctx);
+    previousTime = performance.now();
     requestAnimationFrame(update);
 }
 
@@ -187,11 +201,12 @@ function startGame() {
     gameOver = false;
     score.reset();
     player.dy = player.jumpStrength; // Start jumping
-    player.y = canvas.height - 50; // Reset player position
+    player.y = canvas.height - 100; // Reset player position
     player.x = canvas.width / 2 - 25; // Reset player position
     platforms = [new Platform(100, 500, 100, 10)]; // Reset platforms
     platforms.forEach(platform => platform.passed = false); // Reset passed attribute
-    update();
+    previousTime = performance.now();
+    requestAnimationFrame(update);
 }
 
 async function drawStartScreen() {
