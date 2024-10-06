@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "server": "node ./src/firebase/server.js",
+    "server": "node ./src/Firebase/server.js",
     "start": "concurrently \"npm run dev\" \"npm run server\""
   },
   "devDependencies": {
