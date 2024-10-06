@@ -1,11 +1,11 @@
 import Platform from './Elements/platform.js';
 import Ground from './Elements/ground.js';
+import Leaderboard from './leaderboard/leaderboard.js';
 import StartButton from './Buttons/startButton.js';
 import GameOverButton from './Buttons/gameOverButton.js';
 import LeaderboardButton from './Buttons/leaderboardButton.js';
 import BackButton from './Buttons/backButton.js';
 import Score from './Score/score.js';
-import Leaderboard from './Leaderboard/leaderboard.js';
 
 
 const leaderboard = new Leaderboard();
@@ -276,7 +276,7 @@ function handleClick(event) {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    if (!gameStarted && !gameOver) {
+    if (!gameStarted && !gameOver && !showingLeaderboard) {
         if (startButton.isClicked(x, y)) {
             startGame();
         } else if (leaderboardButton.isClicked(x, y)) {
