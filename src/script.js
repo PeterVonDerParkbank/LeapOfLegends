@@ -230,19 +230,38 @@ async function drawGameOverScreen() {
 
     // Save the score to Firestore
     const highScore = Math.max(score.score, await getHighScore());
-    await setDoc(doc(db, 'scores', 'highScore'), { score: highScore , creatorId: userId});
+    saveHighScore(highScore, 'user123');
 
     console.log('Game over!');
 }
 
 async function getHighScore() {
-    const highScoreDoc = await getDoc(doc(db, 'scores', 'highScore'));
-    if (highScoreDoc.exists()) {
-        return highScoreDoc.data().score;
+    const response = await fetch('http://localhost:3000/api/highscore');
+    if (response.ok) {
+        const data = await response.json();
+        console.log('High Score:', data.highScore);
+        return data.highScore;
     } else {
-        return 0;
+        console.error('Error fetching high score');
     }
 }
+
+async function saveHighScore(score, userId) {
+    const response = await fetch('http://localhost:3000/api/highscore', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ score, userId })
+    });
+  
+    if (response.ok) {
+      console.log('High score saved successfully');
+    } else {
+      console.error('Error saving high score');
+    }
+}
+
 function handleClick(event) {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
