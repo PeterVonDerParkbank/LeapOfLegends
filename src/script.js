@@ -24,6 +24,9 @@ let player = {
     speed: 3.3
 };
 
+//let playerName = 'T.E.D'
+let playerName = 'Peterpunsh99'
+
 let ground = new Ground(0, canvas.height - 50, canvas.width, 50);
 let startButton = new StartButton(canvas.width / 2 - 50, canvas.height / 2 - 25, 100, 50, 'Start');
 let gameOverButton = new GameOverButton(canvas.width / 2 - 50, canvas.height / 2 - 25, 100, 50, 'Restart');
@@ -212,7 +215,7 @@ async function drawStartScreen() {
     // Display high score
     ctx.fillStyle = 'black';
     ctx.font = '20px Arial';
-    ctx.fillText(`High Score: ${await getHighScore()}`, 10, 60);
+    ctx.fillText(`PB: ${await getPersonalBest(playerName)}`, 10, 60);
 }
 
 async function drawGameOverScreen() {
@@ -226,39 +229,39 @@ async function drawGameOverScreen() {
     // Display high score
     ctx.fillStyle = 'black';
     ctx.font = '20px Arial';
-    ctx.fillText(`High Score: ${await getHighScore()}`, 10, 60);
+    ctx.fillText(`PB: ${await getPersonalBest(playerName)}`, 10, 60);
 
     // Save the score to Firestore
-    const highScore = Math.max(score.score, await getHighScore());
-    saveHighScore(highScore, 'user123');
+    saveScore(score.score, '1', playerName);
 
     console.log('Game over!');
 }
 
-async function getHighScore() {
-    const response = await fetch('http://localhost:3000/api/highscore');
+async function getPersonalBest(playerName) {
+    //call endpoint api/personalbest with query parameter userName
+    const response = await fetch(`http://localhost:3000/api/personalbest?userName=${playerName}`);
     if (response.ok) {
         const data = await response.json();
-        console.log('High Score:', data.highScore);
-        return data.highScore;
+        console.log('Personal Best:', data.personalBest);
+        return data.personalBest;
     } else {
-        console.error('Error fetching high score');
+        console.error('Error fetching personal best');
     }
 }
 
-async function saveHighScore(score, userId) {
-    const response = await fetch('http://localhost:3000/api/highscore', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ score, userId })
+async function saveScore(score, userId, userName) {
+    const response = await fetch('http://localhost:3000/api/score', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ score, userId, userName })
     });
-  
+
     if (response.ok) {
-      console.log('High score saved successfully');
+        console.log('Score saved successfully');
     } else {
-      console.error('Error saving high score');
+        console.error('Error saving score');
     }
 }
 
