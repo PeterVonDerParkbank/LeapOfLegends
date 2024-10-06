@@ -2,10 +2,16 @@ import Platform from './Elements/platform.js';
 import Ground from './Elements/ground.js';
 import StartButton from './Buttons/startButton.js';
 import GameOverButton from './Buttons/gameOverButton.js';
+import LeaderboardButton from './Buttons/leaderboardButton.js';
+import BackButton from './Buttons/backButton.js';
 import Score from './Score/score.js';
-import { auth, db, doc, getDoc, setDoc } from './Firebase/firebase.js';
+import Leaderboard from './Leaderboard/leaderboard.js';
 
 
+const leaderboard = new Leaderboard();
+const leaderboardButton = new LeaderboardButton(100, 400, 200, 50, 'Leaderboard');
+
+const backButton = new BackButton(10, 10, 100, 50, 'Zurück');
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -39,8 +45,10 @@ let scrolling = false;
 let targetPlatformY = 0;
 let gameStarted = false;
 let gameOver = false;
+let showingLeaderboard = false;
 const score = new Score();
-const userId = auth.currentUser ? auth.currentUser.uid : null;
+
+
 const maxPlatforms = 5; // Maximum number of platforms
 const playerImage = new Image();
 playerImage.src = '/src/assets/images/moo_base.png';
@@ -211,6 +219,7 @@ async function drawStartScreen() {
     drawPlatforms();
     ground.draw(ctx);
     startButton.draw(ctx);
+    leaderboardButton.draw(ctx);
 
     // Display high score
     ctx.fillStyle = 'black';
@@ -224,17 +233,16 @@ async function drawGameOverScreen() {
     drawPlatforms();
     ground.draw(ctx);
     gameOverButton.draw(ctx);
+    leaderboardButton.draw(ctx);
     score.draw(ctx);
 
-    // Display high score
+    // Display personal best
     ctx.fillStyle = 'black';
     ctx.font = '20px Arial';
     ctx.fillText(`PB: ${await getPersonalBest(playerName)}`, 10, 60);
 
     // Save the score to Firestore
     saveScore(score.score, '1', playerName);
-
-    console.log('Game over!');
 }
 
 async function getPersonalBest(playerName) {
@@ -242,7 +250,6 @@ async function getPersonalBest(playerName) {
     const response = await fetch(`http://localhost:3000/api/personalbest?userName=${playerName}`);
     if (response.ok) {
         const data = await response.json();
-        console.log('Personal Best:', data.personalBest);
         return data.personalBest;
     } else {
         console.error('Error fetching personal best');
@@ -259,7 +266,6 @@ async function saveScore(score, userId, userName) {
     });
 
     if (response.ok) {
-        console.log('Score saved successfully');
     } else {
         console.error('Error saving score');
     }
@@ -273,12 +279,32 @@ function handleClick(event) {
     if (!gameStarted && !gameOver) {
         if (startButton.isClicked(x, y)) {
             startGame();
+        } else if (leaderboardButton.isClicked(x, y)) {
+            showLeaderboard();
         }
     } else if (gameOver) {
         if (gameOverButton.isClicked(x, y)) {
             startGame();
+        } else if (leaderboardButton.isClicked(x, y)) {
+            showLeaderboard();
+        }
+    } else if (showingLeaderboard) {
+        if (backButton.isClicked(x, y)) {
+            showStartScreen();
         }
     }
+}
+
+function showLeaderboard() {
+    gameOver = false;
+    gameStarted = false;
+    showingLeaderboard = true;
+    leaderboard.draw(ctx, canvas.width, canvas.height);
+}
+
+function showStartScreen() {
+    showingLeaderboard = false;
+    drawStartScreen();
 }
 
 function handleTouchStart(event) {
@@ -286,13 +312,21 @@ function handleTouchStart(event) {
     const x = event.touches[0].clientX - rect.left;
     const y = event.touches[0].clientY - rect.top;
 
-    if (!gameStarted && !gameOver) {
+    if (!gameStarted && !gameOver && !showingLeaderboard) {
         if (startButton.isClicked(x, y)) {
             startGame();
+        } else if (leaderboardButton.isClicked(x, y)) {
+            showLeaderboard();
         }
     } else if (gameOver) {
         if (gameOverButton.isClicked(x, y)) {
             startGame();
+        } else if (leaderboardButton.isClicked(x, y)) {
+            showLeaderboard();
+        }
+    } else if (showingLeaderboard) {
+        if (backButton.isClicked(x, y)) {
+            showStartScreen();
         }
     }
 
