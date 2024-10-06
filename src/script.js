@@ -1,6 +1,6 @@
 import Platform from './Elements/platform.js';
 import Ground from './Elements/ground.js';
-import Leaderboard from './leaderboard/leaderboard.js';
+import Leaderboard from './Leaderboard/leaderboard.js';
 import StartButton from './Buttons/startButton.js';
 import GameOverButton from './Buttons/gameOverButton.js';
 import LeaderboardButton from './Buttons/leaderboardButton.js';
