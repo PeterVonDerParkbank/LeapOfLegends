@@ -19,8 +19,8 @@ let player = {
     width: 50,
     height: 50,
     dy: 0,
-    gravity: 0.2,
-    jumpStrength: -9.5,
+    gravity: 0.25,
+    jumpStrength: -10,
     speed: 3.3
 };
 
@@ -120,7 +120,7 @@ function update(currentTime) {
         const minScrollSpeed = 1; // Minimum scroll speed
 
         // Calculate dynamic scroll speed based on distance
-        const scrollSpeed = Math.max(minScrollSpeed, Math.min(maxScrollSpeed, distanceToScroll / 10));
+        const scrollSpeed = Math.max(minScrollSpeed, Math.min(maxScrollSpeed, distanceToScroll / 10) * delta_time_multiplier);
 
         if (targetPlatformY + scrollSpeed < targetY) {
             platforms.forEach(p => {
