@@ -1,4 +1,3 @@
-// server.js
 import express from 'express';
 import admin from 'firebase-admin';
 import { readFileSync } from 'fs';
@@ -6,7 +5,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 dotenv.config();
-
 
 // Laden der Service Account Credentials
 const serviceAccount = JSON.parse(readFileSync(process.env.VITE_FIREBASE_SERVICE_ACCOUNT, 'utf8'));
@@ -18,13 +16,17 @@ admin.initializeApp({
 
 const db = admin.firestore();
 const app = express();
-app.use(cors());
+
+// Update CORS configuration
+app.use(cors({
+    origin: 'http://192.201.134.10', // Allow requests from Vite server
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type']
+}));
+
 app.use(express.json());
 
-//Definieren einer safe-Score-Funktion
-// Score soll in Collection "Players" gespeichert werden
-// Pro User soll ein Dokument erstellt werden
-//Dokument hat folgende Felder: playerId: string, playerName: string, scores: Array; Items in array: score: number, timestamp: Timestamp 
+// Define saveScore function
 async function saveScore(score, userId, userName) {
     const playerRef = db.collection('players').doc(userName);
     const playerDoc = await playerRef.get();
@@ -38,46 +40,7 @@ async function saveScore(score, userId, userName) {
     }
 }
 
-//Definieren einer safe-Score-in-leaderboard-Funktion
-// Score soll im Leader Board gespeichert werden
-// Leaderboard soll anschließend sortiert werden, nach den TopScores
-// Wenn Score schlechter als Top100 ist, soll er nicht gespeichert werden
-// Struktur von Leaderboard: Document mit ID "top100", Felder: scores: Array; Items in Array: score: number, playerName: string, playerId: string, timestamp: Timestamp
-async function saveScoreInLeaderboard(score, userId, userName) {
-    const leaderboardRef = db.collection('leaderboard').doc('top100');
-    const leaderboardDoc = await leaderboardRef.get();
-    if (leaderboardDoc.exists) {
-        const leaderboardData = leaderboardDoc.data();
-        const scores = leaderboardData.scores || [];
-        scores.push({ score, playerId: userId, playerName: userName, timestamp: admin.firestore.Timestamp.now() });
-        scores.sort((a, b) => b.score - a.score);
-        if (scores.length > 100) {
-            scores.pop();
-        }
-        await leaderboardRef.update({ scores });
-    } else {
-        await leaderboardRef.set({ scores: [{ score, playerId: userId, playerName: userName, timestamp: admin.firestore.Timestamp.now() }] });
-    }
-}
-
-//  Definieren einer getPersonalBest-Function
-//  Die Funktion soll den besten Score eines Users zurückgeben
-//  Wenn der User nicht existiert, soll 0 zurückgegeben werden
-async function getPersonalBest(userName) {
-    const playerRef = db.collection('players').doc(userName);
-    const playerDoc = await playerRef.get();
-    if (playerDoc.exists) {
-        const playerData = playerDoc.data();
-        const scores = playerData.scores || [];
-        return scores.reduce((best, current) => Math.max(best, current.score), 0);
-    } else {
-        return 0;
-    }
-}
-
-//Definieren einer getTop100-Function
-//Die Funktion soll die Top 100 Scores aus dem Leaderboard zurückgeben
-//Wenn weniger als 100 Scores vorhanden sind, sollen alle Scores zurückgegeben werden
+// Define getTop100 function
 async function getTop100() {
     const leaderboardRef = db.collection('leaderboard').doc('top100');
     const leaderboardDoc = await leaderboardRef.get();
@@ -89,9 +52,7 @@ async function getTop100() {
     }
 }
 
-//Definieren einer getTop10 Function aus der Top 100
-//Die Funktion soll die Top 10 Scores aus dem Leaderboard zurückgeben
-//Wenn weniger als 10 Scores vorhanden sind, sollen alle Scores zurückgegeben werden
+// Define getTop10 function
 async function getTop10() {
     const leaderboardRef = db.collection('leaderboard').doc('top100');
     const leaderboardDoc = await leaderboardRef.get();
@@ -103,7 +64,7 @@ async function getTop10() {
     }
 }
 
-//API-Endpunkt für getTop10
+// Define API endpoints
 app.get('/api/top10', async (req, res) => {
     try {
         const top10 = await getTop10();
@@ -113,7 +74,6 @@ app.get('/api/top10', async (req, res) => {
     }
 });
 
-//API-Endpunkt für getTop100
 app.get('/api/top100', async (req, res) => {
     try {
         const top100 = await getTop100();
@@ -123,10 +83,8 @@ app.get('/api/top100', async (req, res) => {
     }
 });
 
-//API-Endpunkt für getPersonalBest
 app.get('/api/personalbest', async (req, res) => {
     const { userName } = req.query;
-    console.log(userName);
     try {
         const personalBest = await getPersonalBest(userName);
         res.json({ "personalBest": personalBest });
@@ -135,7 +93,6 @@ app.get('/api/personalbest', async (req, res) => {
     }
 });
 
-// API-ENDPUNKT FÜR SAVE SCORE AND SAVE SCORE IN LEADERBOARD IF TOP 100
 app.post('/api/score', async (req, res) => {
     const { score, userId, userName } = req.body;
     try {
