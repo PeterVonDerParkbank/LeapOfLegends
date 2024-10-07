@@ -126,6 +126,7 @@ app.get('/api/top100', async (req, res) => {
 //API-Endpunkt für getPersonalBest
 app.get('/api/personalbest', async (req, res) => {
     const { userName } = req.query;
+    console.log(userName);
     try {
         const personalBest = await getPersonalBest(userName);
         res.json({ "personalBest": personalBest });
