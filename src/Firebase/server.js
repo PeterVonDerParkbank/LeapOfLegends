@@ -19,7 +19,7 @@ const app = express();
 
 // Update CORS configuration
 app.use(cors({
-    origin: 'http://192.201.134.10', // Allow requests from Vite server
+    origin: 'https://marsloeller.com', // Allow requests from Vite server
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
 }));

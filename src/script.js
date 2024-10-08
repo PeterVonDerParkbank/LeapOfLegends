@@ -247,7 +247,7 @@ async function drawGameOverScreen() {
 
 async function getPersonalBest(playerName) {
     //call endpoint api/personalbest with query parameter userName
-    const response = await fetch(`http://localhost:3000/api/personalbest?userName=${playerName}`);
+    const response = await fetch(`https://marsloeller.com/api/personalbest?userName=${playerName}`);
     if (response.ok) {
         const data = await response.json();
         return data.personalBest;
@@ -257,7 +257,7 @@ async function getPersonalBest(playerName) {
 }
 
 async function saveScore(score, userId, userName) {
-    const response = await fetch('http://localhost:3000/api/score', {
+    const response = await fetch('https://marsloeller.com/api/score', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
