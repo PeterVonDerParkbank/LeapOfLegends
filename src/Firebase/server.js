@@ -26,6 +26,35 @@ app.use(cors({
 
 app.use(express.json());
 
+async function saveScoreInLeaderboard(score, userId, userName) {
+    const leaderboardRef = db.collection('leaderboard').doc('top100');
+    const leaderboardDoc = await leaderboardRef.get();
+    if (leaderboardDoc.exists) {
+        const leaderboardData = leaderboardDoc.data();
+        const scores = leaderboardData.scores || [];
+        scores.push({ score, playerId: userId, playerName: userName, timestamp: admin.firestore.Timestamp.now() });
+        scores.sort((a, b) => b.score - a.score);
+        if (scores.length > 100) {
+            scores.pop();
+        }
+        await leaderboardRef.update({ scores });
+    } else {
+        await leaderboardRef.set({ scores: [{ score, playerId: userId, playerName: userName, timestamp: admin.firestore.Timestamp.now() }] });
+    }
+}
+
+async function getPersonalBest(userName) {
+    const playerRef = db.collection('players').doc(userName);
+    const playerDoc = await playerRef.get();
+    if (playerDoc.exists) {
+        const playerData = playerDoc.data();
+        const scores = playerData.scores || [];
+        return scores.reduce((best, current) => Math.max(best, current.score), 0);
+    } else {
+        return 0;
+    }
+}
+
 // Define saveScore function
 async function saveScore(score, userId, userName) {
     const playerRef = db.collection('players').doc(userName);
