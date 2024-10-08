@@ -8,6 +8,10 @@ import BackButton from './Buttons/backButton.js';
 import Score from './Score/score.js';
 
 
+
+const initData = Telegram.WebApp.initDataUnsafe;
+const userInfo = initData.user;
+
 const leaderboard = new Leaderboard();
 const leaderboardButton = new LeaderboardButton(100, 400, 200, 50, 'Leaderboard');
 
@@ -30,8 +34,13 @@ let player = {
     speed: 3.3
 };
 
+let playerName = 'Peterpunsh99';
+let playerId = '1'
 //let playerName = 'T.E.D'
-let playerName = 'Peterpunsh99'
+if (userInfo) {
+    playerName = userInfo.first_name + " " + userInfo.last_name;
+    playerId = userInfo.id;
+}
 
 let ground = new Ground(0, canvas.height - 50, canvas.width, 50);
 let startButton = new StartButton(canvas.width / 2 - 50, canvas.height / 2 - 25, 100, 50, 'Start');
@@ -242,7 +251,7 @@ async function drawGameOverScreen() {
     ctx.fillText(`PB: ${await getPersonalBest(playerName)}`, 10, 60);
 
     // Save the score to Firestore
-    saveScore(score.score, '1', playerName);
+    saveScore(score.score, playerId, playerName);
 }
 
 async function getPersonalBest(playerName) {
