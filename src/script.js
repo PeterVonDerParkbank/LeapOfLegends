@@ -4,14 +4,58 @@ import Leaderboard from './Leaderboard/leaderboard.js';
 import StartButton from './Buttons/startButton.js';
 import GameOverButton from './Buttons/gameOverButton.js';
 import LeaderboardButton from './Buttons/leaderboardButton.js';
+import AllowOrientationButton from './Buttons/allowOrientation.js';
 import BackButton from './Buttons/backButton.js';
 import Score from './Score/score.js';
 
 
-
 const initData = Telegram.WebApp.initDataUnsafe;
 const userInfo = initData.user;
-
+let allowedOrientation = false;
+async function checkOrientationPermission() {
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        try {
+            const permissionState = await DeviceOrientationEvent.requestPermission();
+            if (permissionState === 'granted') {
+                window.addEventListener('deviceorientation', handleOrientation);
+                return true;
+            } else {
+                console.error('Permission to access device orientation was denied');
+                return false;
+            }
+        } catch (error) {
+            console.error(error);
+            return false;
+        }
+    } else {
+        // Fallback für Browser, die keine Berechtigungen benötigen
+        window.addEventListener('deviceorientation', handleOrientation);
+        return true;
+    }
+}
+const allowOrientationButton = new AllowOrientationButton(100, 300, 200, 100, 'Click to enable\n device orientation');
+allowOrientationButton.element.addEventListener('click', () => {
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission()
+            .then(permissionState => {
+                if (permissionState === 'granted') {
+                    allowedOrientation = true;
+                    window.addEventListener('deviceorientation', handleOrientation);
+                    allowOrientationButton.hide();
+                    showStartScreen();
+                } else {
+                    console.error('Permission to access device orientation was denied');
+                }
+            })
+            .catch(console.error);
+    } else {
+        // Fallback für Browser, die keine Berechtigungen benötigen
+        allowedOrientation = true;
+        window.addEventListener('deviceorientation', handleOrientation);
+        allowOrientationButton.style.display = 'none'; // Verstecke den Button
+        showStartScreen(); // Zeige den Start-Screen
+    }
+});
 const leaderboard = new Leaderboard();
 const leaderboardButton = new LeaderboardButton(100, 400, 200, 50, 'Leaderboard');
 
@@ -189,24 +233,18 @@ function update(currentTime) {
     requestAnimationFrame(update);
 }
 
-canvas.addEventListener('touchstart', handleTouch);
-canvas.addEventListener('touchmove', handleTouch);
-
-function handleTouch(event) {
+function handleOrientation(event) {
     if (!gameStarted) return;
 
-    const touchX = event.touches[0].clientX;
-    const canvasRect = canvas.getBoundingClientRect();
-    const relativeX = touchX - canvasRect.left;
+    const tiltLR = event.gamma; // Left to right tilt in degrees
 
-    if (relativeX < player.x + player.width / 2) {
+    if (tiltLR < -5) {
+        // Neigung nach links
         player.x -= player.speed;
-    } else {
+    } else if (tiltLR > 5) {
+        // Neigung nach rechts
         player.x += player.speed;
     }
-
-    // Prevent default behavior to avoid scrolling
-    event.preventDefault();
 }
 
 function startGame() {
@@ -252,6 +290,11 @@ async function drawGameOverScreen() {
 
     // Save the score to Firestore
     saveScore(score.score, playerId, playerName);
+}
+
+async function drawAllowOrientationScreen() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    allowOrientationButton.display();
 }
 
 async function getPersonalBest(playerName) {
@@ -321,7 +364,9 @@ function handleTouchStart(event) {
     const x = event.touches[0].clientX - rect.left;
     const y = event.touches[0].clientY - rect.top;
 
-    if (!gameStarted && !gameOver && !showingLeaderboard) {
+    if (!allowedOrientation) {
+        console.log('YOU ARE HERE LARS')
+    } else if (!gameStarted && !gameOver && !showingLeaderboard) {
         if (startButton.isClicked(x, y)) {
             startGame();
         } else if (leaderboardButton.isClicked(x, y)) {
@@ -345,7 +390,13 @@ function handleTouchStart(event) {
 
 canvas.addEventListener('click', handleClick);
 canvas.addEventListener('touchstart', handleTouchStart);
-
+window.addEventListener('deviceorientation', handleOrientation);
 (async function() {
-    await drawStartScreen();
+    allowedOrientation = await checkOrientationPermission();
+    if (allowedOrientation) {
+        showStartScreen();
+    } else {
+        console.log('Device orientation not allowed');
+        await drawAllowOrientationScreen();
+    }
 })();
