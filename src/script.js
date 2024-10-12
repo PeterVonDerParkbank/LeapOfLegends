@@ -188,25 +188,28 @@ function update(currentTime) {
     previousTime = performance.now();
     requestAnimationFrame(update);
 }
-
-canvas.addEventListener('touchstart', handleTouch);
-canvas.addEventListener('touchmove', handleTouch);
-
-function handleTouch(event) {
+window.addEventListener('deviceorientation', handleOrientation);
+function handleOrientation(event) {
     if (!gameStarted) return;
 
-    const touchX = event.touches[0].clientX;
-    const canvasRect = canvas.getBoundingClientRect();
-    const relativeX = touchX - canvasRect.left;
+    const tiltLR = event.gamma; // Left to right tilt in degrees
 
-    if (relativeX < player.x + player.width / 2) {
+    if (tiltLR < -5) {
+        // Neigung nach links
         player.x -= player.speed;
-    } else {
+    } else if (tiltLR > 5) {
+        // Neigung nach rechts
         player.x += player.speed;
     }
 
-    // Prevent default behavior to avoid scrolling
-    event.preventDefault();
+    // Wenn die Spielfigur den linken Rand verlässt, erscheint sie rechts
+    if (player.x + player.width < 0) {
+        player.x = canvas.width;
+    } 
+    // Wenn die Spielfigur den rechten Rand verlässt, erscheint sie links
+    else if (player.x > canvas.width) {
+        player.x = -player.width;
+    }
 }
 
 function startGame() {
