@@ -105,8 +105,6 @@ let gameOver = false;
 let showingLeaderboard = false;
 const score = new Score();
 
-
-const maxPlatforms = 5; // Maximum number of platforms
 const playerImage = new Image();
 playerImage.src = '/src/assets/images/moo_base.png';
 
@@ -115,7 +113,6 @@ let previousTime = performance.now();
 let interval = 1000 / frames_per_second;
 let delta_time_multiplier = 1;
 let delta_time = 0;
-
 
 function drawPlayer() {
     if (playerImage.complete) {
@@ -152,7 +149,7 @@ function update(currentTime) {
     // Smooth scrolling
     if (scrolling) {
         try {
-            const result = scrollPlatforms(platforms, player, canvas, targetPlatformY, delta_time_multiplier, maxPlatforms);
+            const result = scrollPlatforms(platforms, player, canvas, targetPlatformY, delta_time_multiplier, score.score);
             platforms = result.platforms;
             scrolling = result.scrolling;
             targetPlatformY = result.targetPlatformY; // Update targetPlatformY with the new value
