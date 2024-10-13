@@ -146,27 +146,28 @@ function update(currentTime) {
     // Check for left and right boundaries
     if (player.x + player.width < 0) {
         player.x = canvas.width;
-        console.log('Player moved to the right edge');
     } else if (player.x > canvas.width) {
         player.x = -player.width;
-        console.log('Player moved to the left edge');
     }
 
     // Smooth scrolling
     if (scrolling) {
         console.log('Scrolling platforms'); // Debugging log
-        const result = scrollPlatforms(platforms, player, canvas, targetPlatformY, delta_time_multiplier, maxPlatforms);
-        platforms = result.platforms;
-        scrolling = result.scrolling;
-        targetPlatformY = result.targetPlatformY; // Update targetPlatformY with the new value
-        console.log(`Scrolling result: targetPlatformY: ${targetPlatformY}, scrolling: ${scrolling}`); // Debugging log
+        try {
+            const result = scrollPlatforms(platforms, player, canvas, targetPlatformY, delta_time_multiplier, maxPlatforms);
+            platforms = result.platforms;
+            scrolling = result.scrolling;
+            targetPlatformY = result.targetPlatformY; // Update targetPlatformY with the new value
+            console.log(`Scrolling result: targetPlatformY: ${targetPlatformY}, scrolling: ${scrolling}`); // Debugging log
+        } catch (error) {
+            console.log(error);
+        }
     }
     // Increment score based on player's vertical position
     platforms.forEach(platform => {
         if (player.dy < 0 && player.y < platform.y && !platform.passed) {
             platform.passed = true;
             score.increment();
-            console.log('Score incremented'); // Debugging log
         }
     });
 
@@ -174,7 +175,6 @@ function update(currentTime) {
     if (collisionY !== null) {
         scrolling = true;
         targetPlatformY = collisionY;
-        console.log(`Collision detected at Y: ${collisionY}, scrolling: ${scrolling}`); // Debugging log
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);

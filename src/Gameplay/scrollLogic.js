@@ -8,18 +8,20 @@ export function scrollPlatforms(platforms, player, canvas, targetPlatformY, delt
 
     // Calculate dynamic scroll speed based on distance
     const scrollSpeed = Math.max(minScrollSpeed, Math.min(maxScrollSpeed, distanceToScroll / 10) * delta_time_multiplier);
+    console.log("STEP1")
     if (targetPlatformY + scrollSpeed < targetY) {
+        console.log("STEP_IF_1")
         platforms.forEach(p => {
             p.y += scrollSpeed;
         });
+        console.log("STEP_IF_2")
         player.y += scrollSpeed;
         targetPlatformY += scrollSpeed; // Update targetPlatformY to reflect the new position
 
         // Remove platforms that are out of view
         platforms = platforms.filter(p => p.y < canvas.height);
-
         // Generate new platform during scrolling if the number of platforms is less than maxPlatforms
-        while (platforms.length < maxPlatforms) {
+        if (platforms.length < maxPlatforms) {
             if (platforms.length === 0) {
                 generatePlatform(platforms, canvas);
             } else {
