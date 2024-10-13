@@ -7,7 +7,9 @@ import LeaderboardButton from './Buttons/leaderboardButton.js';
 import AllowOrientationButton from './Buttons/allowOrientation.js';
 import BackButton from './Buttons/backButton.js';
 import Score from './Score/score.js';
-
+import { drawPlatforms, generatePlatform } from './Gameplay/platformLogic.js';
+import { scrollPlatforms } from './Gameplay/scrollLogic.js';
+import { checkCollision } from './Gameplay/collisionLogic.js';
 
 const initData = Telegram.WebApp.initDataUnsafe;
 const userInfo = initData.user;
@@ -92,10 +94,12 @@ let gameOverButton = new GameOverButton(canvas.width / 2 - 50, canvas.height / 2
 
 let platforms = [
     new Platform(100, 300, 100, 10),
+    new Platform(200, 500, 100, 10)
 ];
 
 let scrolling = false;
 let targetPlatformY = 0;
+let collisionY = null;
 let gameStarted = false;
 let gameOver = false;
 let showingLeaderboard = false;
@@ -123,41 +127,11 @@ function drawPlayer() {
     }
 }
 
-function drawPlatforms() {
-    platforms.forEach(platform => platform.draw(ctx));
-}
-
-function checkCollision() {
-    platforms.forEach(platform => {
-        if (player.dy > 0 && 
-            player.x < platform.x + platform.width &&
-            player.x + player.width > platform.x &&
-            player.y + player.height > platform.y &&
-            player.y + player.height < platform.y + platform.height) {
-            player.dy = player.jumpStrength;
-
-            // Start scrolling when the player reaches a platform
-            scrolling = true;
-            targetPlatformY = platform.y;
-        }
-    });
-}
-
-function generatePlatform() {
-    const minPlatformGap = 80; // Minimum vertical gap between platforms
-    const maxPlatformGap = 180; // Maximum vertical gap between platforms
-    const platformWidth = 100;
-    const platformHeight = 10;
-
-    const lastPlatform = platforms[platforms.length - 1];
-    const newY = lastPlatform.y - (Math.random() * (maxPlatformGap - minPlatformGap) + minPlatformGap);
-    const newX = Math.random() * (canvas.width - platformWidth);
-
-    platforms.push(new Platform(newX, newY, platformWidth, platformHeight));
-}
-
 function update(currentTime) {
-    if (!gameStarted) return;
+    console.log('update');
+    if (!gameStarted) {
+        return
+    };
     delta_time = currentTime - previousTime;
     delta_time_multiplier = delta_time / interval;
     player.dy += player.gravity*delta_time_multiplier;
@@ -178,38 +152,15 @@ function update(currentTime) {
 
     // Smooth scrolling
     if (scrolling) {
-        const targetY = canvas.height - 50; // Target position above the bottom edge
-        const distanceToScroll = targetY - targetPlatformY;
-        const maxScrollSpeed = 5; // Maximum scroll speed
-        const minScrollSpeed = 1; // Minimum scroll speed
-
-        // Calculate dynamic scroll speed based on distance
-        const scrollSpeed = Math.max(minScrollSpeed, Math.min(maxScrollSpeed, distanceToScroll / 10) * delta_time_multiplier);
-
-        if (targetPlatformY + scrollSpeed < targetY) {
-            platforms.forEach(p => {
-                p.y += scrollSpeed;
-            });
-            player.y += scrollSpeed;
-            targetPlatformY += scrollSpeed; // Update targetPlatformY to reflect the new position
-
-            // Remove platforms that are out of view
-            platforms = platforms.filter(p => p.y < canvas.height);
-
-            // Generate new platform during scrolling if the number of platforms is less than maxPlatforms
-            if (platforms.length < maxPlatforms) {
-                const lastPlatform = platforms[platforms.length - 1];
-                if (lastPlatform.y > 0) {
-                    generatePlatform();
-                }
-            }
-        } else {
-            const remainingDistance = targetY - targetPlatformY;
-            platforms.forEach(p => {
-                p.y += remainingDistance;
-            });
-            player.y += remainingDistance;
-            scrolling = false;
+        console.log('Scrolling platforms'); // Debugging log
+        try {
+            const result = scrollPlatforms(platforms, player, canvas, targetPlatformY, delta_time_multiplier, maxPlatforms);
+            platforms = result.platforms;
+            scrolling = result.scrolling;
+            targetPlatformY = result.targetPlatformY; // Update targetPlatformY with the new value
+            console.log(`Scrolling result: targetPlatformY: ${targetPlatformY}, scrolling: ${scrolling}`); // Debugging log
+        } catch (error) {
+            console.log(error);
         }
     }
     // Increment score based on player's vertical position
@@ -220,21 +171,24 @@ function update(currentTime) {
         }
     });
 
-    
-
-    checkCollision();
+    collisionY = checkCollision(player, platforms);
+    if (collisionY !== null) {
+        scrolling = true;
+        targetPlatformY = collisionY;
+    }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     drawPlayer();
-    drawPlatforms();
+    drawPlatforms(platforms, ctx);
     score.draw(ctx);
     previousTime = performance.now();
     requestAnimationFrame(update);
 }
 
 function handleOrientation(event) {
-    if (!gameStarted) return;
+    if (!gameStarted) {
+        return
+    };
 
     const tiltLR = event.gamma; // Left to right tilt in degrees
 
@@ -257,13 +211,15 @@ function startGame() {
     platforms = [new Platform(100, 500, 100, 10)]; // Reset platforms
     platforms.forEach(platform => platform.passed = false); // Reset passed attribute
     previousTime = performance.now();
+    targetPlatformY = platforms[0].y; // Initialize targetPlatformY
+    scrolling = false; // Initialize scrolling
     requestAnimationFrame(update);
 }
 
 async function drawStartScreen() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPlayer();
-    drawPlatforms();
+    drawPlatforms(platforms, ctx);
     ground.draw(ctx);
     startButton.draw(ctx);
     leaderboardButton.draw(ctx);
@@ -277,7 +233,7 @@ async function drawStartScreen() {
 async function drawGameOverScreen() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPlayer();
-    drawPlatforms();
+    drawPlatforms(platforms, ctx);
     ground.draw(ctx);
     gameOverButton.draw(ctx);
     leaderboardButton.draw(ctx);
@@ -365,7 +321,6 @@ function handleTouchStart(event) {
     const y = event.touches[0].clientY - rect.top;
 
     if (!allowedOrientation) {
-        console.log('YOU ARE HERE LARS')
     } else if (!gameStarted && !gameOver && !showingLeaderboard) {
         if (startButton.isClicked(x, y)) {
             startGame();
@@ -396,7 +351,6 @@ window.addEventListener('deviceorientation', handleOrientation);
     if (allowedOrientation) {
         showStartScreen();
     } else {
-        console.log('Device orientation not allowed');
         await drawAllowOrientationScreen();
     }
 })();
