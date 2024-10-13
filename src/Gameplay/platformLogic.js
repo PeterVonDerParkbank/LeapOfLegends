@@ -10,9 +10,11 @@ export function generatePlatform(platforms, canvas) {
     const platformWidth = 100;
     const platformHeight = 10;
 
-    const lastPlatform = platforms[platforms.length - 1];
-    const newY = lastPlatform.y - (Math.random() * (maxPlatformGap - minPlatformGap) + minPlatformGap);
-    const newX = Math.random() * (canvas.width - platformWidth);
+    let newX, newY;
 
+    const lastPlatform = platforms[platforms.length - 1];
+    newY = lastPlatform.y - (Math.random() * (maxPlatformGap - minPlatformGap) + minPlatformGap);
+    newX = Math.random() * (canvas.width - platformWidth);
+ 
     platforms.push(new Platform(newX, newY, platformWidth, platformHeight));
 }
