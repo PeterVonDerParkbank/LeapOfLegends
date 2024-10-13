@@ -7,7 +7,7 @@ import LeaderboardButton from './Buttons/leaderboardButton.js';
 import AllowOrientationButton from './Buttons/allowOrientation.js';
 import BackButton from './Buttons/backButton.js';
 import Score from './Score/score.js';
-
+import { drawPlatforms, generatePlatform } from './Gameplay/platformLogic.js';
 
 const initData = Telegram.WebApp.initDataUnsafe;
 const userInfo = initData.user;
@@ -123,9 +123,8 @@ function drawPlayer() {
     }
 }
 
-function drawPlatforms() {
-    platforms.forEach(platform => platform.draw(ctx));
-}
+
+
 
 function checkCollision() {
     platforms.forEach(platform => {
@@ -141,19 +140,6 @@ function checkCollision() {
             targetPlatformY = platform.y;
         }
     });
-}
-
-function generatePlatform() {
-    const minPlatformGap = 80; // Minimum vertical gap between platforms
-    const maxPlatformGap = 180; // Maximum vertical gap between platforms
-    const platformWidth = 100;
-    const platformHeight = 10;
-
-    const lastPlatform = platforms[platforms.length - 1];
-    const newY = lastPlatform.y - (Math.random() * (maxPlatformGap - minPlatformGap) + minPlatformGap);
-    const newX = Math.random() * (canvas.width - platformWidth);
-
-    platforms.push(new Platform(newX, newY, platformWidth, platformHeight));
 }
 
 function update(currentTime) {
@@ -200,7 +186,7 @@ function update(currentTime) {
             if (platforms.length < maxPlatforms) {
                 const lastPlatform = platforms[platforms.length - 1];
                 if (lastPlatform.y > 0) {
-                    generatePlatform();
+                    generatePlatform(platforms, canvas);
                 }
             }
         } else {
@@ -227,7 +213,7 @@ function update(currentTime) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     drawPlayer();
-    drawPlatforms();
+    drawPlatforms(platforms, ctx);
     score.draw(ctx);
     previousTime = performance.now();
     requestAnimationFrame(update);
@@ -263,7 +249,7 @@ function startGame() {
 async function drawStartScreen() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPlayer();
-    drawPlatforms();
+    drawPlatforms(platforms, ctx);
     ground.draw(ctx);
     startButton.draw(ctx);
     leaderboardButton.draw(ctx);
@@ -277,7 +263,7 @@ async function drawStartScreen() {
 async function drawGameOverScreen() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPlayer();
-    drawPlatforms();
+    drawPlatforms(platforms, ctx);
     ground.draw(ctx);
     gameOverButton.draw(ctx);
     leaderboardButton.draw(ctx);
