@@ -128,7 +128,6 @@ function drawPlayer() {
 }
 
 function update(currentTime) {
-    console.log('update');
     if (!gameStarted) {
         return
     };
@@ -152,13 +151,11 @@ function update(currentTime) {
 
     // Smooth scrolling
     if (scrolling) {
-        console.log('Scrolling platforms'); // Debugging log
         try {
             const result = scrollPlatforms(platforms, player, canvas, targetPlatformY, delta_time_multiplier, maxPlatforms);
             platforms = result.platforms;
             scrolling = result.scrolling;
             targetPlatformY = result.targetPlatformY; // Update targetPlatformY with the new value
-            console.log(`Scrolling result: targetPlatformY: ${targetPlatformY}, scrolling: ${scrolling}`); // Debugging log
         } catch (error) {
             console.log(error);
         }
