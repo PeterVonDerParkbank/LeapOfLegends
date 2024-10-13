@@ -8,7 +8,6 @@ export function scrollPlatforms(platforms, player, canvas, targetPlatformY, delt
 
     // Calculate dynamic scroll speed based on distance
     const scrollSpeed = Math.max(minScrollSpeed, Math.min(maxScrollSpeed, distanceToScroll / 10) * delta_time_multiplier);
-    console.log(distanceToScroll);
     if (targetPlatformY + scrollSpeed < targetY) {
         platforms.forEach(p => {
             p.y += scrollSpeed;

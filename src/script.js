@@ -310,7 +310,6 @@ function handleTouchStart(event) {
     const y = event.touches[0].clientY - rect.top;
 
     if (!allowedOrientation) {
-        console.log('YOU ARE HERE LARS')
     } else if (!gameStarted && !gameOver && !showingLeaderboard) {
         if (startButton.isClicked(x, y)) {
             startGame();
@@ -341,7 +340,6 @@ window.addEventListener('deviceorientation', handleOrientation);
     if (allowedOrientation) {
         showStartScreen();
     } else {
-        console.log('Device orientation not allowed');
         await drawAllowOrientationScreen();
     }
 })();

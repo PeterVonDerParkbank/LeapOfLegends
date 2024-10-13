@@ -7,7 +7,6 @@ export function checkCollision(player, platforms) {
             player.y + player.height < platform.y + platform.height) {
             player.dy = player.jumpStrength;
             // Start scrolling when the player reaches a platform
-            console.log(platform.y);
             return platform.y;
         }
     }
