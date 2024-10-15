@@ -102,6 +102,7 @@ let targetPlatformY = 0;
 let collisionY = null;
 let gameStarted = false;
 let gameOver = false;
+let touchedTrap = false;
 let showingLeaderboard = false;
 const score = new Score();
 
@@ -135,10 +136,13 @@ function update(currentTime) {
     
     if (player.y + player.height > canvas.height) {
         gameOver = true;
+    }
+
+    if (gameOver || touchedTrap) {
+        gameOver = true;
         drawGameOverScreen();
         return;
     }
-
     // Check for left and right boundaries
     if (player.x + player.width < 0) {
         player.x = canvas.width;
@@ -165,7 +169,9 @@ function update(currentTime) {
         }
     });
 
-    collisionY = checkCollision(player, platforms);
+    const collisionResult  = checkCollision(player, platforms);
+    collisionY = collisionResult.platformY;
+    touchedTrap = collisionResult.touchedTrap;
     if (collisionY !== null) {
         scrolling = true;
         targetPlatformY = collisionY;
@@ -198,6 +204,7 @@ function handleOrientation(event) {
 function startGame() {
     gameStarted = true;
     gameOver = false;
+    touchedTrap = false;
     score.reset();
     player.dy = player.jumpStrength; // Start jumping
     player.y = canvas.height - 100; // Reset player position

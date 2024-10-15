@@ -26,6 +26,8 @@ export function generatePlatform(platforms, canvas, score) {
         platformType = 'moving';
     } else if (determinePlatformType < 0.2) {
         platformType = 'breaking';
+    } else if (determinePlatformType < 0.3) {
+        platformType = 'trap';
     } else {
         platformType = 'normal';
     }

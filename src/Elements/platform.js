@@ -8,7 +8,7 @@ class Platform {
     }
 
     draw(ctx) {
-        ctx.fillStyle = 'brown';
+        ctx.fillStyle = 'blue';
         ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 }
