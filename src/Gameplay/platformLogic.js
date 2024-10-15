@@ -1,5 +1,4 @@
-import Platform from '../Elements/platform.js';
-import MovingPlatform from '../Elements/movingPlatform.js';
+import PlatformFactory from '../Elements/platformFactory.js';
 
 export function drawPlatforms(platforms, ctx) {
     platforms.forEach(platform => platform.draw(ctx));
@@ -22,10 +21,15 @@ export function generatePlatform(platforms, canvas, score) {
     newY = lastPlatform.y - (Math.random() * (maxPlatformGap - minPlatformGap) + minPlatformGap);
     newX = Math.random() * (canvas.width - platformWidth);
 
-    const isMovingPlatform = Math.random() < 0.1; // 10% chance of generating a moving platform
-    if (isMovingPlatform) {
-        platforms.push(new MovingPlatform(newX, newY, platformWidth, platformHeight));
+    const determinePlatformType = Math.random();
+    if (determinePlatformType < 0.1) {
+        platformType = 'moving';
+    } else if (determinePlatformType < 0.2) {
+        platformType = 'breaking';
     } else {
-        platforms.push(new Platform(newX, newY, platformWidth, platformHeight));
+        platformType = 'normal';
     }
+    
+    platforms.push(PlatformFactory.createPlatform(platformType, newX, newY, platformWidth, platformHeight));
+
 }
