@@ -4,9 +4,7 @@ function calculateMaxPlatforms(score)  {
     const initialMaxPlatforms = 15;
     const minPlatforms = 3;
     const scoreThreshold = 1000;
-    console.log(score);
     const maxPlatforms = Math.max(minPlatforms, initialMaxPlatforms - Math.floor(score / scoreThreshold));
-    console.log(maxPlatforms);
     return maxPlatforms;
 }
 

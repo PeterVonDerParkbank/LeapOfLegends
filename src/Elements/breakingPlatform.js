@@ -8,7 +8,7 @@ export default class BreakingPlatform extends Platform {
 
     draw(ctx) {
         if (!this.touched) {
-            ctx.fillStyle = 'brown';
+            ctx.fillStyle = 'green';
             ctx.fillRect(this.x, this.y, this.width, this.height);
         }
     }

@@ -16,7 +16,7 @@ export function generatePlatform(platforms, canvas, score) {
     const maxPlatformGap = Math.min(180,Math.floor(baseMaxPlatformGap + gapIncrease));
 
     let newX, newY;
-
+    let platformType;
     const lastPlatform = platforms[platforms.length - 1];
     newY = lastPlatform.y - (Math.random() * (maxPlatformGap - minPlatformGap) + minPlatformGap);
     newX = Math.random() * (canvas.width - platformWidth);

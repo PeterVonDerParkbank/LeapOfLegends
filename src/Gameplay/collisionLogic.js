@@ -1,3 +1,5 @@
+import BreakingPlatform from '../Elements/breakingPlatform.js';
+
 export function checkCollision(player, platforms) {
     for (let i = 0; i < platforms.length; i++) {
         const platform = platforms[i];
