@@ -1,7 +1,7 @@
 import { generatePlatform,trapPlatformCount } from './platformLogic.js';
 import TrapPlatform from '../Elements/trapPlatform.js';
 
-function calculateMaxPlatforms(score)  {
+export function calculateMaxPlatforms(score)  {
     const initialMaxPlatforms = 15;
     const minPlatforms = 3;
     const scoreThreshold = 1000;
