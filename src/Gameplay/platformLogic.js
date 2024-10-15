@@ -1,7 +1,21 @@
-import Platform from '../Elements/platform.js';
+import PlatformFactory from '../Elements/platformFactory.js';
+import { calculateMaxPlatforms } from '../Gameplay/scrollLogic.js';
 
 export function drawPlatforms(platforms, ctx) {
     platforms.forEach(platform => platform.draw(ctx));
+}
+let trapPlatformCount = 0;
+
+export function getTrapPlatformCount() {
+    return trapPlatformCount;
+}
+
+export function incrementTrapPlatformCount() {
+    trapPlatformCount++;
+}
+
+export function decrementTrapPlatformCount() {
+    trapPlatformCount--;
 }
 
 export function generatePlatform(platforms, canvas, score) {
@@ -15,13 +29,26 @@ export function generatePlatform(platforms, canvas, score) {
     const minPlatformGap = Math.min(80,Math.floor(baseMinPlatformGap + gapIncrease));
     const maxPlatformGap = Math.min(180,Math.floor(baseMaxPlatformGap + gapIncrease));
 
-    console.log(minPlatformGap, maxPlatformGap);
     let newX, newY;
-
+    let platformType;
     const lastPlatform = platforms[platforms.length - 1];
     newY = lastPlatform.y - (Math.random() * (maxPlatformGap - minPlatformGap) + minPlatformGap);
-    console.log(newY);
     newX = Math.random() * (canvas.width - platformWidth);
 
-    platforms.push(new Platform(newX, newY, platformWidth, platformHeight));
+    const determinePlatformType = Math.random();
+    const maxPlatforms = calculateMaxPlatforms(score);
+    const maxTrapPlatforms = Math.floor(maxPlatforms / 3);
+    if (determinePlatformType < 0.1) {
+        platformType = 'moving';
+    } else if (determinePlatformType < 0.2) {
+        platformType = 'breaking';
+    } else if (determinePlatformType < 0.25 && trapPlatformCount < maxTrapPlatforms) {
+        platformType = 'trap';
+        incrementTrapPlatformCount();
+    } else {
+        platformType = 'normal';
+    }
+    
+    platforms.push(PlatformFactory.createPlatform(platformType, newX, newY, platformWidth, platformHeight));
+
 }
