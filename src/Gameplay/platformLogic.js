@@ -1,8 +1,10 @@
 import PlatformFactory from '../Elements/platformFactory.js';
+import { calculateMaxPlatforms } from '../Gameplay/scrollLogic.js';
 
 export function drawPlatforms(platforms, ctx) {
     platforms.forEach(platform => platform.draw(ctx));
 }
+export let trapPlatformCount = 0;
 
 export function generatePlatform(platforms, canvas, score) {
     const baseMinPlatformGap = 10; // Minimum vertical gap between platforms
@@ -22,12 +24,15 @@ export function generatePlatform(platforms, canvas, score) {
     newX = Math.random() * (canvas.width - platformWidth);
 
     const determinePlatformType = Math.random();
+    const maxPlatforms = calculateMaxPlatforms(score);
+    const maxTrapPlatforms = Math.floor(maxPlatforms / 3);
     if (determinePlatformType < 0.1) {
         platformType = 'moving';
     } else if (determinePlatformType < 0.2) {
         platformType = 'breaking';
-    } else if (determinePlatformType < 0.3) {
+    } else if (determinePlatformType < 0.25 && trapPlatformCount < maxTrapPlatforms) {
         platformType = 'trap';
+        trapPlatformCount++;
     } else {
         platformType = 'normal';
     }

@@ -1,4 +1,5 @@
-import { generatePlatform } from './platformLogic.js';
+import { generatePlatform,trapPlatformCount } from './platformLogic.js';
+import TrapPlatform from '../Elements/trapPlatform.js';
 
 function calculateMaxPlatforms(score)  {
     const initialMaxPlatforms = 15;
@@ -27,7 +28,15 @@ export function scrollPlatforms(platforms, player, canvas, targetPlatformY, delt
         targetPlatformY += scrollSpeed; // Update targetPlatformY to reflect the new position
 
         // Remove platforms that are out of view
-        platforms = platforms.filter(p => p.y < canvas.height);
+        platforms = platforms.filter(p => {
+            if (p.y >= canvas.height) {
+                if (p instanceof TrapPlatform) {
+                    trapPlatformCount--; // Decrement the trap platform count
+                }
+                return false; // Remove the platform
+            }
+            return true; // Keep the platform
+        });
         // Generate new platform during scrolling if the number of platforms is less than maxPlatforms
         if (platforms.length < maxPlatforms) {
             if (platforms.length === 0) {
