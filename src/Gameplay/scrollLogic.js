@@ -1,4 +1,4 @@
-import { generatePlatform,trapPlatformCount } from './platformLogic.js';
+import { generatePlatform,decrementTrapPlatformCount } from './platformLogic.js';
 import TrapPlatform from '../Elements/trapPlatform.js';
 
 export function calculateMaxPlatforms(score)  {
@@ -31,7 +31,7 @@ export function scrollPlatforms(platforms, player, canvas, targetPlatformY, delt
         platforms = platforms.filter(p => {
             if (p.y >= canvas.height) {
                 if (p instanceof TrapPlatform) {
-                    trapPlatformCount--; // Decrement the trap platform count
+                    decrementTrapPlatformCount(); // Decrement the trap platform count
                 }
                 return false; // Remove the platform
             }
