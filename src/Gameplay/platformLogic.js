@@ -1,8 +1,14 @@
 import PlatformFactory from '../Elements/platformFactory.js';
 import { calculateMaxPlatforms } from '../Gameplay/scrollLogic.js';
+import { Jetpack } from '../Elements/jetpack.js';
 
 export function drawPlatforms(platforms, ctx) {
-    platforms.forEach(platform => platform.draw(ctx));
+    platforms.forEach(platform => {
+        platform.draw(ctx);
+        if (platform.jetpack) {
+            platform.jetpack.draw(ctx);
+        }
+    });
 }
 let trapPlatformCount = 0;
 
@@ -18,7 +24,7 @@ export function decrementTrapPlatformCount() {
     trapPlatformCount--;
 }
 
-export function generatePlatform(platforms, canvas, score) {
+export function generatePlatform(platforms, player ,canvas, score) {
     const baseMinPlatformGap = 10; // Minimum vertical gap between platforms
     const baseMaxPlatformGap = 100; // Maximum vertical gap between platforms
     const platformWidth = 100;
@@ -49,6 +55,12 @@ export function generatePlatform(platforms, canvas, score) {
         platformType = 'normal';
     }
     
-    platforms.push(PlatformFactory.createPlatform(platformType, newX, newY, platformWidth, platformHeight));
+    const newPlatform = PlatformFactory.createPlatform(platformType, newX, newY, platformWidth, platformHeight);
+    if (Math.random() < 0.1 && player.jetpackActive === false) {
+        const jetpack = new Jetpack(newX+platformWidth / 2 -15, newY - 50, 30, 50);
+        newPlatform.jetpack = jetpack;
+    }
+    platforms.push(newPlatform);
 
+    
 }

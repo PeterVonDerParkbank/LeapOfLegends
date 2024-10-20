@@ -7,7 +7,7 @@ import LeaderboardButton from './Buttons/leaderboardButton.js';
 import AllowOrientationButton from './Buttons/allowOrientation.js';
 import BackButton from './Buttons/backButton.js';
 import Score from './Score/score.js';
-import { drawPlatforms, generatePlatform } from './Gameplay/platformLogic.js';
+import { drawPlatforms } from './Gameplay/platformLogic.js';
 import { scrollPlatforms } from './Gameplay/scrollLogic.js';
 import { checkCollision } from './Gameplay/collisionLogic.js';
 
@@ -77,7 +77,13 @@ let player = {
     dy: 0,
     gravity: 0.25,
     jumpStrength: -10,
-    speed: 3.3
+    speed: 3.3,
+    jetpackActive: false,
+    useJetpack: function() {
+        if (this.jetpackActive) {
+            this.dy = -5; // Boost upwards
+        }
+    }
 };
 
 let playerName = 'Peterpunsh99';
@@ -127,13 +133,13 @@ function drawPlayer() {
 
 function update(currentTime) {
     if (!gameStarted) {
-        return
-    };
+        return;
+    }
     delta_time = currentTime - previousTime;
     delta_time_multiplier = delta_time / interval;
-    player.dy += player.gravity*delta_time_multiplier;
-    player.y += player.dy*delta_time_multiplier;
-    
+    player.dy += player.gravity * delta_time_multiplier;
+    player.y += player.dy * delta_time_multiplier;
+
     if (player.y + player.height > canvas.height) {
         gameOver = true;
     }
@@ -143,6 +149,7 @@ function update(currentTime) {
         drawGameOverScreen();
         return;
     }
+
     // Check for left and right boundaries
     if (player.x + player.width < 0) {
         player.x = canvas.width;
@@ -151,7 +158,7 @@ function update(currentTime) {
     }
 
     // Smooth scrolling
-    if (scrolling) {
+    if (scrolling || player.jetpackActive) {
         try {
             const result = scrollPlatforms(platforms, player, canvas, targetPlatformY, delta_time_multiplier, score.score);
             platforms = result.platforms;
@@ -161,6 +168,7 @@ function update(currentTime) {
             console.log(error);
         }
     }
+
     // Increment score based on player's vertical position
     platforms.forEach(platform => {
         if (player.dy < 0 && player.y < platform.y && !platform.passed) {
@@ -169,13 +177,25 @@ function update(currentTime) {
         }
     });
 
-    const collisionResult  = checkCollision(player, platforms);
+    const collisionResult = checkCollision(player, platforms);
     collisionY = collisionResult.platformY;
     touchedTrap = collisionResult.touchedTrap;
     if (collisionY !== null) {
         scrolling = true;
         targetPlatformY = collisionY;
     }
+
+    // Check for jetpack collection
+    platforms.forEach(platform => {
+        if (platform.jetpack && !platform.jetpack.active &&
+            player.x < platform.jetpack.x + platform.jetpack.width &&
+            player.x + player.width > platform.jetpack.x &&
+            player.y < platform.jetpack.y + platform.jetpack.height &&
+            player.y + player.height > platform.jetpack.y) {
+            player.jetpackActive = true;
+            platform.jetpack.activate(player);
+        }
+    });
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPlayer();
@@ -209,6 +229,7 @@ function startGame() {
     player.dy = player.jumpStrength; // Start jumping
     player.y = canvas.height - 100; // Reset player position
     player.x = canvas.width / 2 - 25; // Reset player position
+    player.jetpackActive = false; // Reset jetpack
     platforms = [new Platform(100, 500, 100, 10)]; // Reset platforms
     platforms.forEach(platform => platform.passed = false); // Reset passed attribute
     previousTime = performance.now();
