@@ -16,17 +16,17 @@ export class Jetpack {
 
     activate(player) {
         this.active = true;
-        player.gravity = -0.1; // Reduce gravity to simulate jetpack lift
-        player.dy = -5; // Give an initial boost
+        player.dy = -10; // Give an initial boost
+        player.gravity = 0; // Disable gravity while jetpack is active
         setTimeout(() => {
             this.deactivate(player);
-        }, 1500); // Deactivate jetpack after 2.5 seconds
+        }, 2500); // Deactivate jetpack after 2.5 seconds
     }
 
     deactivate(player) {
         this.active = false;
         player.jetpackActive = false;
+        player.gravity = 0.25;
         console.log('Jetpack deactivated');
-        player.gravity = 0.25; // Reset gravity to normal
     }
 }

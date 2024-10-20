@@ -78,12 +78,7 @@ let player = {
     gravity: 0.25,
     jumpStrength: -10,
     speed: 3.3,
-    jetpackActive: false,
-    useJetpack: function() {
-        if (this.jetpackActive) {
-            this.dy = -5; // Boost upwards
-        }
-    }
+    jetpackActive: false
 };
 
 let playerName = 'Peterpunsh99';
@@ -191,12 +186,12 @@ function update(currentTime) {
             player.x < platform.jetpack.x + platform.jetpack.width &&
             player.x + player.width > platform.jetpack.x &&
             player.y < platform.jetpack.y + platform.jetpack.height &&
-            player.y + player.height > platform.jetpack.y) {
+            player.y + player.height > platform.jetpack.y
+            && player.jetpackActive === false) {
             player.jetpackActive = true;
             platform.jetpack.activate(player);
         }
     });
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPlayer();
     drawPlatforms(platforms, ctx);

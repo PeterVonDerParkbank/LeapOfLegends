@@ -17,13 +17,7 @@ export function scrollPlatforms(platforms, player, canvas, targetPlatformY, delt
     const minScrollSpeed = 2; // Increased minimum scroll speed
 
     // Calculate dynamic scroll speed based on distance to scroll
-    let scrollSpeed = Math.max(minScrollSpeed, Math.min(maxScrollSpeed, distanceToScroll / 5) * delta_time_multiplier);
-
-    // Increase scroll speed if jetpack is active
-    if (player.jetpackActive) {
-        console.log('Jetpack active');
-        scrollSpeed = 7 * delta_time_multiplier;
-    }
+    const scrollSpeed = Math.max(minScrollSpeed, Math.min(maxScrollSpeed, Math.abs(distanceToScroll) / 5) * delta_time_multiplier);
 
     const maxPlatforms = calculateMaxPlatforms(score);
 
@@ -42,11 +36,11 @@ export function scrollPlatforms(platforms, player, canvas, targetPlatformY, delt
         platforms = platforms.filter(p => {
             if (p.y >= canvas.height) {
                 if (p instanceof TrapPlatform) {
-                    decrementTrapPlatformCount(); // Decrement the trap platform count
+                    decrementTrapPlatformCount();
                 }
-                return false; // Remove the platform
+                return false;
             }
-            return true; // Keep the platform
+            return true;
         });
 
         // Generate new platform during scrolling if the number of platforms is less than maxPlatforms
@@ -61,6 +55,9 @@ export function scrollPlatforms(platforms, player, canvas, targetPlatformY, delt
             }
         }
     } else {
+        if (targetPlatformY > 550) {
+            targetPlatformY = 550; // Ensure targetPlatformY does not exceed the maximum value
+        };
         const remainingDistance = targetY - targetPlatformY;
         platforms.forEach(p => {
             p.y += remainingDistance;
