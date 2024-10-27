@@ -107,23 +107,38 @@ let touchedTrap = false;
 let showingLeaderboard = false;
 const score = new Score();
 
-const playerImage = new Image();
-playerImage.src = '/src/assets/images/moo_base.png';
-
 let frames_per_second = 60;
 let previousTime = performance.now();
 let interval = 1000 / frames_per_second;
 let delta_time_multiplier = 1;
 let delta_time = 0;
+let playerImage;
+
+function preloadPlayerImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+    });
+}
+
+(async function() {
+    try {
+        playerImage = await preloadPlayerImage('/src/assets/images/moo_base.png');
+        allowedOrientation = await checkOrientationPermission();
+        if (allowedOrientation) {
+            showStartScreen();
+        } else {
+            await drawAllowOrientationScreen();
+        }
+    } catch (error) {
+        console.error('Error loading player image:', error);
+    }
+})();
 
 function drawPlayer() {
-    if (playerImage.complete) {
-        ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
-    } else {
-        playerImage.onload = () => {
-            ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
-        };
-    }
+    ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
 }
 
 function update(currentTime) {
