@@ -1,3 +1,8 @@
+@font-face {
+    font-family: 'CustomFont';
+    src: url('src/assets/fonts/Greek-Freak.ttf') format('truetype');
+}
+
 body {
     margin: 0;
     display: flex;
@@ -5,8 +10,10 @@ body {
     align-items: center;
     height: 100vh;
     background-color: #f0f0f0;
+    font-family: 'CustomFont', monospace;
 }
 
 #gameCanvas {
     border: 1px solid #000;
+    font-family: 'CustomFont', monospace;
 }

@@ -11,7 +11,7 @@ export default class BackButton {
         ctx.fillStyle = 'black';
         ctx.fillRect(this.x, this.y, this.width, this.height);
         ctx.fillStyle = 'white';
-        ctx.font = '20px Arial';
+        ctx.font = '20px CustomFont';
         ctx.fillText(this.text, this.x + 10, this.y + 30);
     }
 
