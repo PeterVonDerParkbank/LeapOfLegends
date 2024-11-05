@@ -1,12 +1,16 @@
-body {
+@font-face {
+    font-family: 'CustomFont';
+    src: url('src/assets/fonts/Greek-Freak.ttf') format('truetype');
+}
+
+html, body {
+    overflow: hidden; /* Verhindert das Scrollen */
+    height: 100%; /* Stellt sicher, dass der Body die gesamte Höhe einnimmt */
     margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f0f0f0;
+    padding: 0;
 }
 
 #gameCanvas {
     border: 1px solid #000;
+    font-family: 'CustomFont', monospace;
 }

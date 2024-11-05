@@ -17,7 +17,7 @@ export default class Leaderboard {
         await this.fetchScores();
         ctx.clearRect(0, 0, canvas_width, canvas_height);
         ctx.fillStyle = 'black';
-        ctx.font = '20px Arial';
+        ctx.font = '20px CustomFont';
         ctx.fillText('Leaderboard', canvas_width / 2 - 50, 50);
 
         this.scores.forEach((score, index) => {

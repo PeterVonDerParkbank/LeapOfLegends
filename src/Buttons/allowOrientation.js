@@ -18,6 +18,7 @@ export default class AllowOrientationButton {
         this.element.style.borderRadius = '5px'; // Rounded corners
         this.element.style.fontSize = '16px'; // Font size
         this.element.style.cursor = 'pointer'; // Pointer cursor on hover
+        this.element.style.display = 'none'; // Hide button initially
         document.body.appendChild(this.element);
     }
 
@@ -27,5 +28,9 @@ export default class AllowOrientationButton {
 
     hide() {
         this.element.style.display = 'none';
+    }
+
+    addClickListener(callback) {
+        this.element.addEventListener('click', callback);
     }
 }

@@ -11,15 +11,15 @@ export function calculateMaxPlatforms(score) {
 }
 
 export function scrollPlatforms(platforms, player, canvas, targetPlatformY, delta_time_multiplier, score) {
-    const targetY = canvas.height - 50; // Target position above the bottom edge
+    const targetY = canvas.height - 100; // Target position above the bottom edge
     const distanceToScroll = targetY - targetPlatformY;
     const maxScrollSpeed = 11.5; // Increased maximum scroll speed
     const minScrollSpeed = 2; // Increased minimum scroll speed
-
     // Calculate dynamic scroll speed based on distance to scroll
     const scrollSpeed = Math.max(minScrollSpeed, Math.min(maxScrollSpeed, Math.abs(distanceToScroll) / 5) * delta_time_multiplier);
-
     const maxPlatforms = calculateMaxPlatforms(score);
+
+    const dynamicThreshold = canvas.height - 100; // Dynamic threshold for scrolling
 
     if (targetPlatformY + scrollSpeed < targetY || player.jetpackActive) {
         platforms.forEach(platform => {
@@ -55,8 +55,9 @@ export function scrollPlatforms(platforms, player, canvas, targetPlatformY, delt
             }
         }
     } else {
-        if (targetPlatformY > 550) {
-            targetPlatformY = 550; // Ensure targetPlatformY does not exceed the maximum value
+        if (targetPlatformY > dynamicThreshold) {
+            console.log(targetPlatformY);
+            targetPlatformY = dynamicThreshold; // Ensure targetPlatformY does not exceed the maximum value
         };
         const remainingDistance = targetY - targetPlatformY;
         platforms.forEach(p => {

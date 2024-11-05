@@ -12,7 +12,7 @@ export default class Score {
     
     draw(ctx) {
         ctx.fillStyle = 'black';
-        ctx.font = '20px Arial';
+        ctx.font = '20px CustomFont';
         ctx.fillText(`Score: ${this.score}`, 10, 30);
     }
 }

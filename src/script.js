@@ -11,9 +11,90 @@ import { drawPlatforms } from './Gameplay/platformLogic.js';
 import { scrollPlatforms } from './Gameplay/scrollLogic.js';
 import { checkCollision } from './Gameplay/collisionLogic.js';
 
+// Global Variables
 const initData = Telegram.WebApp.initDataUnsafe;
 const userInfo = initData.user;
 let allowedOrientation = false;
+let gameStarted = false;
+let gameOver = false;
+let showingLeaderboard = false;
+let touchedTrap = false;
+let playerImage;
+let playerName = 'Peterpunsh99';
+let playerId = '1';
+let platforms = [];
+let scrolling = false;
+let targetPlatformY = 0;
+let collisionY = null;
+const score = new Score();
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+// Function to resize the canvas
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    // Optionally redraw the background image or other elements here
+}
+
+// Initial resize
+resizeCanvas();
+
+// Add event listener to resize the canvas when the window size changes
+window.addEventListener('resize', resizeCanvas);
+
+let frames_per_second = 60;
+let previousTime = performance.now();
+let interval = 1000 / frames_per_second;
+let delta_time_multiplier = 1;
+let delta_time = 0;
+
+// Player Object
+let player = {
+    x: canvas.width / 2 - 25,
+    y: canvas.height - 50,
+    width: 50,
+    height: 50,
+    dy: 0,
+    gravity: 0.25,
+    jumpStrength: -10,
+    speed: 3.3,
+    jetpackActive: false
+};
+
+// Initialize Game Elements
+const ground = new Ground(0, canvas.height - 50, canvas.width, 50);
+const startButton = new StartButton(canvas.width / 2 - 50, canvas.height / 2 - 25, 100, 50, 'Start');
+const gameOverButton = new GameOverButton(canvas.width / 2 - 50, canvas.height / 2 - 25, 100, 50, 'Restart');
+const leaderboardButton = new LeaderboardButton(100, 400, 200, 50, 'Leaderboard');
+const backButton = new BackButton(10, 10, 100, 50, 'Zurück');
+const leaderboard = new Leaderboard();
+const allowOrientationButton = new AllowOrientationButton(100, 300, 200, 100, 'Click to enable\n device orientation');
+
+// Initialize Player Info
+if (userInfo) {
+    playerName = `${userInfo.first_name} ${userInfo.last_name}`;
+    playerId = userInfo.id;
+}
+
+// Preload Player Image
+async function preloadPlayerImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+    });
+}
+
+//Preload Images
+async function preloadImages(sources) {
+    const promises = sources.map(src => preloadPlayerImage(src));
+    return Promise.all(promises);
+}
+
+// Check Orientation Permission
 async function checkOrientationPermission() {
     if (typeof DeviceOrientationEvent.requestPermission === 'function') {
         try {
@@ -30,121 +111,76 @@ async function checkOrientationPermission() {
             return false;
         }
     } else {
-        // Fallback für Browser, die keine Berechtigungen benötigen
         window.addEventListener('deviceorientation', handleOrientation);
         return true;
     }
 }
-const allowOrientationButton = new AllowOrientationButton(100, 300, 200, 100, 'Click to enable\n device orientation');
-allowOrientationButton.element.addEventListener('click', () => {
-    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission()
-            .then(permissionState => {
-                if (permissionState === 'granted') {
-                    allowedOrientation = true;
-                    window.addEventListener('deviceorientation', handleOrientation);
-                    allowOrientationButton.hide();
-                    showStartScreen();
-                } else {
-                    console.error('Permission to access device orientation was denied');
-                }
-            })
-            .catch(console.error);
-    } else {
-        // Fallback für Browser, die keine Berechtigungen benötigen
-        allowedOrientation = true;
-        window.addEventListener('deviceorientation', handleOrientation);
-        allowOrientationButton.style.display = 'none'; // Verstecke den Button
-        showStartScreen(); // Zeige den Start-Screen
-    }
-});
-const leaderboard = new Leaderboard();
-const leaderboardButton = new LeaderboardButton(100, 400, 200, 50, 'Leaderboard');
 
-const backButton = new BackButton(10, 10, 100, 50, 'Zurück');
-
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-
-canvas.width = 400;
-canvas.height = 600;
-
-let player = {
-    x: canvas.width / 2 - 25,
-    y: canvas.height - 50, // Start on the ground
-    width: 50,
-    height: 50,
-    dy: 0,
-    gravity: 0.25,
-    jumpStrength: -10,
-    speed: 3.3,
-    jetpackActive: false
-};
-
-let playerName = 'Peterpunsh99';
-let playerId = '1'
-//let playerName = 'T.E.D'
-if (userInfo) {
-    playerName = userInfo.first_name + " " + userInfo.last_name;
-    playerId = userInfo.id;
+// Ensure Font is Loaded Before Use
+async function ensureFontLoaded() {
+    await document.fonts.load('1em CustomFont');
+    console.log('CustomFont loaded');
 }
 
-let ground = new Ground(0, canvas.height - 50, canvas.width, 50);
-let startButton = new StartButton(canvas.width / 2 - 50, canvas.height / 2 - 25, 100, 50, 'Start');
-let gameOverButton = new GameOverButton(canvas.width / 2 - 50, canvas.height / 2 - 25, 100, 50, 'Restart');
-
-let platforms = [
-    new Platform(100, 300, 100, 10),
-    new Platform(200, 500, 100, 10)
-];
-
-let scrolling = false;
-let targetPlatformY = 0;
-let collisionY = null;
-let gameStarted = false;
-let gameOver = false;
-let touchedTrap = false;
-let showingLeaderboard = false;
-const score = new Score();
-
-let frames_per_second = 60;
-let previousTime = performance.now();
-let interval = 1000 / frames_per_second;
-let delta_time_multiplier = 1;
-let delta_time = 0;
-let playerImage;
-
-function preloadPlayerImage(src) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.src = src;
-        img.onload = () => resolve(img);
-        img.onerror = reject;
-    });
-}
-
-(async function() {
+// Initialize Game
+async function init() {
     try {
+        await ensureFontLoaded();
         playerImage = await preloadPlayerImage('/src/assets/images/moo_base.png');
         allowedOrientation = await checkOrientationPermission();
         if (allowedOrientation) {
+            startScreenImages =  await preloadImages([
+                '/src/assets/images/startScreen/StartScreen1.png',
+                '/src/assets/images/startScreen/StartScreen2.png',
+                '/src/assets/images/startScreen/StartScreen3.png'
+            ]);
             showStartScreen();
         } else {
-            await drawAllowOrientationScreen();
+            drawAllowOrientationScreen();
         }
     } catch (error) {
         console.error('Error loading player image:', error);
     }
-})();
+}
 
+// Draw Player
 function drawPlayer() {
     ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
 }
 
-function update(currentTime) {
-    if (!gameStarted) {
-        return;
+//Draw Start Screen
+let startScreenFrame = 0;
+let startScreenImages = [];
+let startLoop = 0;
+let frameDuration = [60, 1.5, 2.5]; // Duration for each frame in ticks (assuming 60 FPS, 120 ticks = 2 seconds)
+
+async function animateStartScreen() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Draw start screen images, cycling through them. The animation should be smooth and the images should be displayed in a loop, while the first image is displayed again after the last image and for several seconds.
+    ctx.drawImage(startScreenImages[startScreenFrame], 0, 0, canvas.width, canvas.height);
+    
+    startLoop++;
+    if (startLoop > frameDuration[startScreenFrame]) {
+        startLoop = 0;
+        startScreenFrame = (startScreenFrame + 1) % startScreenImages.length;
     }
+
+    startButton.draw(ctx);
+    leaderboardButton.draw(ctx);
+
+    ctx.fillStyle = 'black';
+    ctx.font = '20px CustomFont';
+    ctx.fillText(`PB: ${await getPersonalBest(playerName)}`, 10, 60);
+
+    if (!gameStarted && !gameOver && !showingLeaderboard) {
+        requestAnimationFrame(animateStartScreen);
+    }
+}
+
+// Update Game State
+function update(currentTime) {
+    if (!gameStarted) return;
+
     delta_time = currentTime - previousTime;
     delta_time_multiplier = delta_time / interval;
     player.dy += player.gravity * delta_time_multiplier;
@@ -160,26 +196,23 @@ function update(currentTime) {
         return;
     }
 
-    // Check for left and right boundaries
     if (player.x + player.width < 0) {
         player.x = canvas.width;
     } else if (player.x > canvas.width) {
         player.x = -player.width;
     }
 
-    // Smooth scrolling
     if (scrolling || player.jetpackActive) {
         try {
             const result = scrollPlatforms(platforms, player, canvas, targetPlatformY, delta_time_multiplier, score.score);
             platforms = result.platforms;
             scrolling = result.scrolling;
-            targetPlatformY = result.targetPlatformY; // Update targetPlatformY with the new value
+            targetPlatformY = result.targetPlatformY;
         } catch (error) {
             console.log(error);
         }
     }
 
-    // Increment score based on player's vertical position
     platforms.forEach(platform => {
         if (player.dy < 0 && player.y < platform.y && !platform.passed) {
             platform.passed = true;
@@ -195,18 +228,18 @@ function update(currentTime) {
         targetPlatformY = collisionY;
     }
 
-    // Check for jetpack collection
     platforms.forEach(platform => {
         if (platform.jetpack && !platform.jetpack.active &&
             player.x < platform.jetpack.x + platform.jetpack.width &&
             player.x + player.width > platform.jetpack.x &&
             player.y < platform.jetpack.y + platform.jetpack.height &&
-            player.y + player.height > platform.jetpack.y
-            && player.jetpackActive === false) {
+            player.y + player.height > platform.jetpack.y &&
+            player.jetpackActive === false) {
             player.jetpackActive = true;
             platform.jetpack.activate(player);
         }
     });
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPlayer();
     drawPlatforms(platforms, ctx);
@@ -215,53 +248,39 @@ function update(currentTime) {
     requestAnimationFrame(update);
 }
 
+// Handle Device Orientation
 function handleOrientation(event) {
-    if (!gameStarted) {
-        return
-    };
+    if (!gameStarted) return;
 
-    const tiltLR = event.gamma; // Left to right tilt in degrees
+    const tiltLR = event.gamma;
 
     if (tiltLR < -5) {
-        // Neigung nach links
         player.x -= player.speed;
     } else if (tiltLR > 5) {
-        // Neigung nach rechts
         player.x += player.speed;
     }
 }
 
+// Start Game
 function startGame() {
     gameStarted = true;
     gameOver = false;
     touchedTrap = false;
     score.reset();
-    player.dy = player.jumpStrength; // Start jumping
-    player.y = canvas.height - 100; // Reset player position
-    player.x = canvas.width / 2 - 25; // Reset player position
-    player.jetpackActive = false; // Reset jetpack
-    platforms = [new Platform(100, 500, 100, 10)]; // Reset platforms
-    platforms.forEach(platform => platform.passed = false); // Reset passed attribute
+    player.dy = player.jumpStrength;
+    player.y = canvas.height - 100;
+    player.x = canvas.width / 2 - 25;
+    player.jetpackActive = false;
+    platforms = [new Platform(100, 500, 100, 10)];
+    platforms.forEach(platform => platform.passed = false);
     previousTime = performance.now();
-    targetPlatformY = platforms[0].y; // Initialize targetPlatformY
-    scrolling = false; // Initialize scrolling
+    targetPlatformY = platforms[0].y;
+    scrolling = false;
     requestAnimationFrame(update);
 }
 
-async function drawStartScreen() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawPlayer();
-    drawPlatforms(platforms, ctx);
-    ground.draw(ctx);
-    startButton.draw(ctx);
-    leaderboardButton.draw(ctx);
 
-    // Display high score
-    ctx.fillStyle = 'black';
-    ctx.font = '20px Arial';
-    ctx.fillText(`PB: ${await getPersonalBest(playerName)}`, 10, 60);
-}
-
+// Draw Game Over Screen
 async function drawGameOverScreen() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPlayer();
@@ -271,22 +290,21 @@ async function drawGameOverScreen() {
     leaderboardButton.draw(ctx);
     score.draw(ctx);
 
-    // Display personal best
     ctx.fillStyle = 'black';
-    ctx.font = '20px Arial';
+    ctx.font = '20px CustomFont';
     ctx.fillText(`PB: ${await getPersonalBest(playerName)}`, 10, 60);
 
-    // Save the score to Firestore
     saveScore(score.score, playerId, playerName);
 }
 
+// Draw Allow Orientation Screen
 async function drawAllowOrientationScreen() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     allowOrientationButton.display();
 }
 
+// Get Personal Best
 async function getPersonalBest(playerName) {
-    //call endpoint api/personalbest with query parameter userName
     const response = await fetch(`https://marsloeller.com/api/personalbest?userName=${playerName}`);
     if (response.ok) {
         const data = await response.json();
@@ -296,6 +314,7 @@ async function getPersonalBest(playerName) {
     }
 }
 
+// Save Score
 async function saveScore(score, userId, userName) {
     const response = await fetch('https://marsloeller.com/api/score', {
         method: 'POST',
@@ -305,12 +324,12 @@ async function saveScore(score, userId, userName) {
         body: JSON.stringify({ score, userId, userName })
     });
 
-    if (response.ok) {
-    } else {
+    if (!response.ok) {
         console.error('Error saving score');
     }
 }
 
+// Show Leaderboard
 function showLeaderboard() {
     gameOver = false;
     gameStarted = false;
@@ -318,18 +337,23 @@ function showLeaderboard() {
     leaderboard.draw(ctx, canvas.width, canvas.height);
 }
 
+// Show Start Screen
 function showStartScreen() {
     showingLeaderboard = false;
-    drawStartScreen();
+    animateStartScreen();
 }
 
+// Handle Touch Start
 function handleTouchStart(event) {
     const rect = canvas.getBoundingClientRect();
     const x = event.touches[0].clientX - rect.left;
     const y = event.touches[0].clientY - rect.top;
 
     if (!allowedOrientation) {
-    } else if (!gameStarted && !gameOver && !showingLeaderboard) {
+        return;
+    }
+
+    if (!gameStarted && !gameOver && !showingLeaderboard) {
         if (startButton.isClicked(x, y)) {
             startGame();
         } else if (leaderboardButton.isClicked(x, y)) {
@@ -347,16 +371,23 @@ function handleTouchStart(event) {
         }
     }
 
-    // Prevent default behavior to avoid scrolling
     event.preventDefault();
 }
+
+// Event Listeners
 canvas.addEventListener('touchstart', handleTouchStart);
-window.addEventListener('deviceorientation', handleOrientation);
-(async function() {
+allowOrientationButton.addClickListener(async () => {
     allowedOrientation = await checkOrientationPermission();
     if (allowedOrientation) {
+        allowOrientationButton.hide();
+        startScreenImages =  await preloadImages([
+            '/src/assets/images/startScreen/StartScreen1.png',
+            '/src/assets/images/startScreen/StartScreen2.png',
+            '/src/assets/images/startScreen/StartScreen3.png'
+        ]);
         showStartScreen();
-    } else {
-        await drawAllowOrientationScreen();
     }
-})();
+});
+
+// Start Initialization
+init();
