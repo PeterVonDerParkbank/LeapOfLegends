@@ -3,14 +3,11 @@
     src: url('src/assets/fonts/Greek-Freak.ttf') format('truetype');
 }
 
-body {
+html, body {
+    overflow: hidden; /* Verhindert das Scrollen */
+    height: 100%; /* Stellt sicher, dass der Body die gesamte Höhe einnimmt */
     margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f0f0f0;
-    font-family: 'CustomFont', monospace;
+    padding: 0;
 }
 
 #gameCanvas {

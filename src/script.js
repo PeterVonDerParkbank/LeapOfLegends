@@ -31,6 +31,19 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+// Function to resize the canvas
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    // Optionally redraw the background image or other elements here
+}
+
+// Initial resize
+resizeCanvas();
+
+// Add event listener to resize the canvas when the window size changes
+window.addEventListener('resize', resizeCanvas);
+
 let frames_per_second = 60;
 let previousTime = performance.now();
 let interval = 1000 / frames_per_second;
@@ -367,6 +380,11 @@ allowOrientationButton.addClickListener(async () => {
     allowedOrientation = await checkOrientationPermission();
     if (allowedOrientation) {
         allowOrientationButton.hide();
+        startScreenImages =  await preloadImages([
+            '/src/assets/images/startScreen/StartScreen1.png',
+            '/src/assets/images/startScreen/StartScreen2.png',
+            '/src/assets/images/startScreen/StartScreen3.png'
+        ]);
         showStartScreen();
     }
 });
