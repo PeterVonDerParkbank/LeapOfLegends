@@ -311,30 +311,6 @@ async function saveScore(score, userId, userName) {
     }
 }
 
-function handleClick(event) {
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    if (!gameStarted && !gameOver && !showingLeaderboard) {
-        if (startButton.isClicked(x, y)) {
-            startGame();
-        } else if (leaderboardButton.isClicked(x, y)) {
-            showLeaderboard();
-        }
-    } else if (gameOver) {
-        if (gameOverButton.isClicked(x, y)) {
-            startGame();
-        } else if (leaderboardButton.isClicked(x, y)) {
-            showLeaderboard();
-        }
-    } else if (showingLeaderboard) {
-        if (backButton.isClicked(x, y)) {
-            showStartScreen();
-        }
-    }
-}
-
 function showLeaderboard() {
     gameOver = false;
     gameStarted = false;
@@ -374,8 +350,6 @@ function handleTouchStart(event) {
     // Prevent default behavior to avoid scrolling
     event.preventDefault();
 }
-
-canvas.addEventListener('click', handleClick);
 canvas.addEventListener('touchstart', handleTouchStart);
 window.addEventListener('deviceorientation', handleOrientation);
 (async function() {
