@@ -29,8 +29,8 @@ let collisionY = null;
 const score = new Score();
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-canvas.width = 400;
-canvas.height = 600;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 let frames_per_second = 60;
 let previousTime = performance.now();
 let interval = 1000 / frames_per_second;
@@ -75,6 +75,12 @@ async function preloadPlayerImage(src) {
     });
 }
 
+//Preload Images
+async function preloadImages(sources) {
+    const promises = sources.map(src => preloadPlayerImage(src));
+    return Promise.all(promises);
+}
+
 // Check Orientation Permission
 async function checkOrientationPermission() {
     if (typeof DeviceOrientationEvent.requestPermission === 'function') {
@@ -110,7 +116,11 @@ async function init() {
         playerImage = await preloadPlayerImage('/src/assets/images/moo_base.png');
         allowedOrientation = await checkOrientationPermission();
         if (allowedOrientation) {
-            console.log("HERE LARS");
+            startScreenImages =  await preloadImages([
+                '/src/assets/images/startScreen/StartScreen1.png',
+                '/src/assets/images/startScreen/StartScreen2.png',
+                '/src/assets/images/startScreen/StartScreen3.png'
+            ]);
             showStartScreen();
         } else {
             drawAllowOrientationScreen();
@@ -123,6 +133,35 @@ async function init() {
 // Draw Player
 function drawPlayer() {
     ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
+}
+
+//Draw Start Screen
+let startScreenFrame = 0;
+let startScreenImages = [];
+let startLoop = 0;
+let frameDuration = [60, 1.5, 2.5]; // Duration for each frame in ticks (assuming 60 FPS, 120 ticks = 2 seconds)
+
+async function animateStartScreen() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Draw start screen images, cycling through them. The animation should be smooth and the images should be displayed in a loop, while the first image is displayed again after the last image and for several seconds.
+    ctx.drawImage(startScreenImages[startScreenFrame], 0, 0, canvas.width, canvas.height);
+    
+    startLoop++;
+    if (startLoop > frameDuration[startScreenFrame]) {
+        startLoop = 0;
+        startScreenFrame = (startScreenFrame + 1) % startScreenImages.length;
+    }
+
+    startButton.draw(ctx);
+    leaderboardButton.draw(ctx);
+
+    ctx.fillStyle = 'black';
+    ctx.font = '20px CustomFont';
+    ctx.fillText(`PB: ${await getPersonalBest(playerName)}`, 10, 60);
+
+    if (!gameStarted && !gameOver && !showingLeaderboard) {
+        requestAnimationFrame(animateStartScreen);
+    }
 }
 
 // Update Game State
@@ -227,19 +266,6 @@ function startGame() {
     requestAnimationFrame(update);
 }
 
-// Draw Start Screen
-async function drawStartScreen() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawPlayer();
-    drawPlatforms(platforms, ctx);
-    ground.draw(ctx);
-    startButton.draw(ctx);
-    leaderboardButton.draw(ctx);
-
-    ctx.fillStyle = 'black';
-    ctx.font = '20px CustomFont';
-    ctx.fillText(`PB: ${await getPersonalBest(playerName)}`, 10, 60);
-}
 
 // Draw Game Over Screen
 async function drawGameOverScreen() {
@@ -301,7 +327,7 @@ function showLeaderboard() {
 // Show Start Screen
 function showStartScreen() {
     showingLeaderboard = false;
-    drawStartScreen();
+    animateStartScreen();
 }
 
 // Handle Touch Start
