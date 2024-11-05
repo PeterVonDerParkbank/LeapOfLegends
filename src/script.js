@@ -152,7 +152,7 @@ function drawPlayer() {
 let startScreenFrame = 0;
 let startScreenImages = [];
 let startLoop = 0;
-let frameDuration = [60, 1.5, 2.5]; // Duration for each frame in ticks (assuming 60 FPS, 120 ticks = 2 seconds)
+let frameDuration = [10, 1.5, 2.5]; // Duration for each frame in ticks (assuming 60 FPS, 120 ticks = 2 seconds)
 
 async function animateStartScreen() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -163,6 +163,9 @@ async function animateStartScreen() {
     if (startLoop > frameDuration[startScreenFrame]) {
         startLoop = 0;
         startScreenFrame = (startScreenFrame + 1) % startScreenImages.length;
+        if (startScreenFrame === 2) {
+            frameDuration[0] = 120;
+        }
     }
 
     startButton.draw(ctx);
