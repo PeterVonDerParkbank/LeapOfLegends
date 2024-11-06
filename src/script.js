@@ -20,6 +20,8 @@ let gameOver = false;
 let showingLeaderboard = false;
 let touchedTrap = false;
 let playerImage;
+let logoImage;
+let overlayImage;
 let playerName = 'Peterpunsh99';
 let playerId = '1';
 let platforms = [];
@@ -65,7 +67,7 @@ let player = {
 
 // Initialize Game Elements
 const ground = new Ground(0, canvas.height - 50, canvas.width, 50);
-const startButton = new StartButton(canvas.width / 2 - 50, canvas.height / 2 - 25, 100, 50, 'Start');
+const startButton = new StartButton(canvas.width / 2 - 50, canvas.height / 2 + 100, 100, 50, 'Start');
 const gameOverButton = new GameOverButton(canvas.width / 2 - 50, canvas.height / 2 - 25, 100, 50, 'Restart');
 const leaderboardButton = new LeaderboardButton(100, 400, 200, 50, 'Leaderboard');
 const backButton = new BackButton(10, 10, 100, 50, 'Zurück');
@@ -134,6 +136,8 @@ async function init() {
                 '/src/assets/images/startScreen/StartScreen2.png',
                 '/src/assets/images/startScreen/StartScreen3.png'
             ]);
+            //logoImage = await preloadPlayerImage('/src/assets/images/startScreen/Logo.png');
+            overlayImage = await preloadPlayerImage('/src/assets/images/startScreen/Overlay.png');
             showStartScreen();
         } else {
             drawAllowOrientationScreen();
@@ -153,12 +157,31 @@ let startScreenFrame = 0;
 let startScreenImages = [];
 let startLoop = 0;
 let frameDuration = [10, 1.5, 2.5]; // Duration for each frame in ticks (assuming 60 FPS, 120 ticks = 2 seconds)
+const scaleX = canvas.width / 1242;
+const scaleY = canvas.height / 2208;
+const buttons = [
+    {
+        x: scaleX * 400,
+        y: scaleY * 1710,
+        width: scaleX * 430,
+        height: scaleY * 200,
+        action: startGame
+    },
+    {
+        x: scaleX * 800,
+        y: scaleY * 1972,
+        width: scaleX * 200,
+        height: scaleY * 50,
+        action: showLeaderboard
+    }
+];
+
 
 async function animateStartScreen() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // Draw start screen images, cycling through them. The animation should be smooth and the images should be displayed in a loop, while the first image is displayed again after the last image and for several seconds.
     ctx.drawImage(startScreenImages[startScreenFrame], 0, 0, canvas.width, canvas.height);
-    
+    ctx.drawImage(overlayImage, 0, 0, canvas.width, canvas.height);
     startLoop++;
     if (startLoop > frameDuration[startScreenFrame]) {
         startLoop = 0;
@@ -167,9 +190,6 @@ async function animateStartScreen() {
             frameDuration[0] = 120;
         }
     }
-
-    startButton.draw(ctx);
-    leaderboardButton.draw(ctx);
 
     ctx.fillStyle = 'black';
     ctx.font = '20px CustomFont';
@@ -357,11 +377,11 @@ function handleTouchStart(event) {
     }
 
     if (!gameStarted && !gameOver && !showingLeaderboard) {
-        if (startButton.isClicked(x, y)) {
-            startGame();
-        } else if (leaderboardButton.isClicked(x, y)) {
-            showLeaderboard();
-        }
+        buttons.forEach(button => {
+            if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
+                button.action();
+            }
+        });
     } else if (gameOver) {
         if (gameOverButton.isClicked(x, y)) {
             startGame();
@@ -388,6 +408,7 @@ allowOrientationButton.addClickListener(async () => {
             '/src/assets/images/startScreen/StartScreen2.png',
             '/src/assets/images/startScreen/StartScreen3.png'
         ]);
+        overlayImage = await preloadPlayerImage('/src/assets/images/startScreen/Overlay.png');
         showStartScreen();
     }
 });
