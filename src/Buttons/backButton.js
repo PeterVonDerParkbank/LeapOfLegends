@@ -5,14 +5,20 @@ export default class BackButton {
         this.width = width;
         this.height = height;
         this.text = text;
+        this.image = new Image();
+        this.image.src = 'src/assets/images/leaderBoardScreen/backButton.png';
+        this.image.loaded = false;
     }
 
     draw(ctx) {
-        ctx.fillStyle = 'black';
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        ctx.fillStyle = 'white';
-        ctx.font = '20px CustomFont';
-        ctx.fillText(this.text, this.x + 10, this.y + 30);
+        if (this.imageLoaded) {
+            ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+        } else {
+            console.log('Starting to load image');
+            ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+            console.log('Image drawn');
+
+        }
     }
 
     isClicked(mouseX, mouseY) {

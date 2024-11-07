@@ -66,12 +66,39 @@ let player = {
 };
 
 // Initialize Game Elements
+const scaleX = canvas.width / 1242;
+const scaleY = canvas.height / 2208;
+const backButtonWidth = 430;
+const backButtonHeight = 200;
+const buttons = [
+    {
+        x: scaleX * 400,
+        y: scaleY * 1710,
+        width: scaleX * 430,
+        height: scaleY * 200,
+        action: startGame
+    },
+    {
+        x: scaleX * 800,
+        y: scaleY * 1972,
+        width: scaleX * 200,
+        height: scaleY * 50,
+        action: showLeaderboard
+    }
+];
+const MenuButtons = [
+    {
+        x: canvas.width / 2 - scaleX* backButtonWidth / 2,
+        y: canvas.height - 120,
+        width: scaleX * backButtonWidth,
+        height: scaleY * backButtonHeight,
+        action: showStartScreen
+    }
+];
 const ground = new Ground(0, canvas.height - 50, canvas.width, 50);
-const startButton = new StartButton(canvas.width / 2 - 50, canvas.height / 2 + 100, 100, 50, 'Start');
 const gameOverButton = new GameOverButton(canvas.width / 2 - 50, canvas.height / 2 - 25, 100, 50, 'Restart');
 const leaderboardButton = new LeaderboardButton(100, 400, 200, 50, 'Leaderboard');
-const backButton = new BackButton(10, 10, 100, 50, 'Zurück');
-const leaderboard = new Leaderboard();
+const leaderboard = new Leaderboard(canvas.width, canvas.height, scaleX, scaleY, backButtonWidth, backButtonHeight);
 const allowOrientationButton = new AllowOrientationButton(100, 300, 200, 100, 'Click to enable\n device orientation');
 
 // Initialize Player Info
@@ -157,24 +184,7 @@ let startScreenFrame = 0;
 let startScreenImages = [];
 let startLoop = 0;
 let frameDuration = [10, 1.5, 2.5]; // Duration for each frame in ticks (assuming 60 FPS, 120 ticks = 2 seconds)
-const scaleX = canvas.width / 1242;
-const scaleY = canvas.height / 2208;
-const buttons = [
-    {
-        x: scaleX * 400,
-        y: scaleY * 1710,
-        width: scaleX * 430,
-        height: scaleY * 200,
-        action: startGame
-    },
-    {
-        x: scaleX * 800,
-        y: scaleY * 1972,
-        width: scaleX * 200,
-        height: scaleY * 50,
-        action: showLeaderboard
-    }
-];
+
 
 
 async function animateStartScreen() {
@@ -389,9 +399,14 @@ function handleTouchStart(event) {
             showLeaderboard();
         }
     } else if (showingLeaderboard) {
-        if (backButton.isClicked(x, y)) {
-            showStartScreen();
-        }
+        console.log('Checking leaderboard buttons');
+        MenuButtons.forEach(button => {
+            console.log('Checking Menubutton');
+            if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
+                console.log('Button clicked');
+                button.action();
+            }
+        });
     }
 
     event.preventDefault();
