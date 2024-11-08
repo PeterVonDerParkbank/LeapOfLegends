@@ -18,7 +18,6 @@ let gameOver = false;
 let showingLeaderboard = false;
 let touchedTrap = false;
 let playerImage;
-let logoImage;
 let overlayImage;
 let playerName = 'Peterpunsh99';
 let playerId = '1';
@@ -153,7 +152,7 @@ async function ensureFontLoaded() {
 async function init() {
     try {
         await ensureFontLoaded();
-        playerImage = await preloadPlayerImage('/src/assets/images/Characters/Lamb.png.png');
+        playerImage = await preloadPlayerImage('/src/assets/images/Characters/Lamb.png');
         allowedOrientation = await checkOrientationPermission();
         if (allowedOrientation) {
             startScreenImages =  await preloadImages([
