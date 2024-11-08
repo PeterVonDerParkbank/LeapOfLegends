@@ -1,11 +1,9 @@
 import Platform from './Elements/platform.js';
 import Ground from './Elements/ground.js';
 import Leaderboard from './Leaderboard/leaderboard.js';
-import StartButton from './Buttons/startButton.js';
 import GameOverButton from './Buttons/gameOverButton.js';
 import LeaderboardButton from './Buttons/leaderboardButton.js';
 import AllowOrientationButton from './Buttons/allowOrientation.js';
-import BackButton from './Buttons/backButton.js';
 import Score from './Score/score.js';
 import { drawPlatforms } from './Gameplay/platformLogic.js';
 import { scrollPlatforms } from './Gameplay/scrollLogic.js';
@@ -155,7 +153,7 @@ async function ensureFontLoaded() {
 async function init() {
     try {
         await ensureFontLoaded();
-        playerImage = await preloadPlayerImage('/src/assets/images/moo_base.png');
+        playerImage = await preloadPlayerImage('/src/assets/images/Characters/Lamb.png.png');
         allowedOrientation = await checkOrientationPermission();
         if (allowedOrientation) {
             startScreenImages =  await preloadImages([
@@ -163,7 +161,6 @@ async function init() {
                 '/src/assets/images/startScreen/StartScreen2.png',
                 '/src/assets/images/startScreen/StartScreen3.png'
             ]);
-            //logoImage = await preloadPlayerImage('/src/assets/images/startScreen/Logo.png');
             overlayImage = await preloadPlayerImage('/src/assets/images/startScreen/Overlay.png');
             showStartScreen();
         } else {
@@ -381,11 +378,9 @@ function handleTouchStart(event) {
     const rect = canvas.getBoundingClientRect();
     const x = event.touches[0].clientX - rect.left;
     const y = event.touches[0].clientY - rect.top;
-
     if (!allowedOrientation) {
         return;
     }
-
     if (!gameStarted && !gameOver && !showingLeaderboard) {
         buttons.forEach(button => {
             if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
@@ -408,7 +403,6 @@ function handleTouchStart(event) {
             }
         });
     }
-
     event.preventDefault();
 }
 
