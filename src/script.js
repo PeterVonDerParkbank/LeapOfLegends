@@ -272,8 +272,8 @@ function update(currentTime) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     //draw background image
     ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-    drawPlayer();
     drawPlatforms(platforms, ctx);
+    drawPlayer();
     score.draw(ctx);
     previousTime = performance.now();
     requestAnimationFrame(update);
