@@ -1,5 +1,4 @@
 import Platform from './Elements/platform.js';
-import Ground from './Elements/ground.js';
 import Leaderboard from './Leaderboard/leaderboard.js';
 import GameOverButton from './Buttons/gameOverButton.js';
 import LeaderboardButton from './Buttons/leaderboardButton.js';
@@ -19,6 +18,7 @@ let showingLeaderboard = false;
 let touchedTrap = false;
 let playerImage;
 let overlayImage;
+let backgroundImage;
 let playerName = 'Peterpunsh99';
 let playerId = '1';
 let platforms = [];
@@ -92,7 +92,6 @@ const MenuButtons = [
         action: showStartScreen
     }
 ];
-const ground = new Ground(0, canvas.height - 50, canvas.width, 50);
 const gameOverButton = new GameOverButton(canvas.width / 2 - 50, canvas.height / 2 - 25, 100, 50, 'Restart');
 const leaderboardButton = new LeaderboardButton(100, 400, 200, 50, 'Leaderboard');
 const leaderboard = new Leaderboard(canvas.width, canvas.height, scaleX, scaleY, backButtonWidth, backButtonHeight);
@@ -161,6 +160,7 @@ async function init() {
                 '/src/assets/images/startScreen/StartScreen3.png'
             ]);
             overlayImage = await preloadPlayerImage('/src/assets/images/startScreen/Overlay.png');
+            backgroundImage = await preloadPlayerImage('/src/assets/images/Background/background.png');
             showStartScreen();
         } else {
             drawAllowOrientationScreen();
@@ -270,6 +270,8 @@ function update(currentTime) {
     });
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //draw background image
+    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
     drawPlayer();
     drawPlatforms(platforms, ctx);
     score.draw(ctx);
@@ -314,7 +316,6 @@ async function drawGameOverScreen() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPlayer();
     drawPlatforms(platforms, ctx);
-    ground.draw(ctx);
     gameOverButton.draw(ctx);
     leaderboardButton.draw(ctx);
     score.draw(ctx);
@@ -416,6 +417,7 @@ allowOrientationButton.addClickListener(async () => {
             '/src/assets/images/startScreen/StartScreen2.png',
             '/src/assets/images/startScreen/StartScreen3.png'
         ]);
+        backgroundImage = await preloadPlayerImage('/src/assets/images/Background/background.png');
         overlayImage = await preloadPlayerImage('/src/assets/images/startScreen/Overlay.png');
         showStartScreen();
     }
