@@ -299,10 +299,10 @@ function startGame() {
     touchedTrap = false;
     score.reset();
     player.dy = player.jumpStrength;
-    player.y = canvas.height - 100;
+    player.y = canvas.height - 150;
     player.x = canvas.width / 2 - 25;
     player.jetpackActive = false;
-    platforms = [new Platform(100, 500, 100, 10)];
+    platforms = [new Platform(canvas.width/2 -50, canvas.height - 150 , 75, 17)];
     platforms.forEach(platform => platform.passed = false);
     previousTime = performance.now();
     targetPlatformY = platforms[0].y;

@@ -5,11 +5,18 @@ class Platform {
         this.width = width;
         this.height = height;
         this.passed = false;
+        this.image = new Image();
+        this.image.src = '/src/assets/images/Tiles/StandardTile.png';
     }
 
     draw(ctx) {
-        ctx.fillStyle = 'blue';
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+        if (this.image.complete) {
+            ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+        } else {
+            this.image.onload = () => {
+                ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+            };
+        }
     }
 }
 

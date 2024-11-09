@@ -27,8 +27,8 @@ export function decrementTrapPlatformCount() {
 export function generatePlatform(platforms, player ,canvas, score) {
     const baseMinPlatformGap = 10; // Minimum vertical gap between platforms
     const baseMaxPlatformGap = 100; // Maximum vertical gap between platforms
-    const platformWidth = 100;
-    const platformHeight = 10;
+    const platformWidth = 75;
+    const platformHeight = 17;
 
     // Increase the gap based on the score
     const gapIncrease = Math.floor(score / 1000) * 10; // Increase gap by 10 for every 100 points
