@@ -2,7 +2,6 @@ import BackButton from '../Buttons/backButton.js';
 
 export default class Leaderboard {
     constructor(canvas_width, canvas_height,scaleX,scaleY, backButtonWidth, backButtonHeight) {
-        console.log(canvas_width/2, backButtonWidth/2)
         this.scores = [];
         const backButtonY = canvas_height - 120;
         this.backButton = new BackButton(canvas_width / 2 - scaleX*backButtonWidth / 2, backButtonY, scaleX*backButtonWidth, scaleY*backButtonHeight, 'Back');

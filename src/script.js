@@ -1,11 +1,8 @@
 import Platform from './Elements/platform.js';
-import Ground from './Elements/ground.js';
 import Leaderboard from './Leaderboard/leaderboard.js';
-import StartButton from './Buttons/startButton.js';
 import GameOverButton from './Buttons/gameOverButton.js';
 import LeaderboardButton from './Buttons/leaderboardButton.js';
 import AllowOrientationButton from './Buttons/allowOrientation.js';
-import BackButton from './Buttons/backButton.js';
 import Score from './Score/score.js';
 import { drawPlatforms } from './Gameplay/platformLogic.js';
 import { scrollPlatforms } from './Gameplay/scrollLogic.js';
@@ -20,8 +17,8 @@ let gameOver = false;
 let showingLeaderboard = false;
 let touchedTrap = false;
 let playerImage;
-let logoImage;
 let overlayImage;
+let backgroundImage;
 let playerName = 'Peterpunsh99';
 let playerId = '1';
 let platforms = [];
@@ -95,7 +92,6 @@ const MenuButtons = [
         action: showStartScreen
     }
 ];
-const ground = new Ground(0, canvas.height - 50, canvas.width, 50);
 const gameOverButton = new GameOverButton(canvas.width / 2 - 50, canvas.height / 2 - 25, 100, 50, 'Restart');
 const leaderboardButton = new LeaderboardButton(100, 400, 200, 50, 'Leaderboard');
 const leaderboard = new Leaderboard(canvas.width, canvas.height, scaleX, scaleY, backButtonWidth, backButtonHeight);
@@ -155,7 +151,9 @@ async function ensureFontLoaded() {
 async function init() {
     try {
         await ensureFontLoaded();
-        playerImage = await preloadPlayerImage('/src/assets/images/moo_base.png');
+        playerImage = await preloadPlayerImage('/src/assets/images/Characters/Lamb.png');
+        const platformImage = await preloadPlayerImage('/src/assets/images/Tiles/StandardTile.png');
+        Platform.prototype.image = platformImage; // Setze das vorab geladene Bild in der Plattform-Klasse
         allowedOrientation = await checkOrientationPermission();
         if (allowedOrientation) {
             startScreenImages =  await preloadImages([
@@ -163,8 +161,8 @@ async function init() {
                 '/src/assets/images/startScreen/StartScreen2.png',
                 '/src/assets/images/startScreen/StartScreen3.png'
             ]);
-            //logoImage = await preloadPlayerImage('/src/assets/images/startScreen/Logo.png');
             overlayImage = await preloadPlayerImage('/src/assets/images/startScreen/Overlay.png');
+            backgroundImage = await preloadPlayerImage('/src/assets/images/Background/background.png');
             showStartScreen();
         } else {
             drawAllowOrientationScreen();
@@ -274,8 +272,10 @@ function update(currentTime) {
     });
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawPlayer();
+    //draw background image
+    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
     drawPlatforms(platforms, ctx);
+    drawPlayer();
     score.draw(ctx);
     previousTime = performance.now();
     requestAnimationFrame(update);
@@ -301,10 +301,10 @@ function startGame() {
     touchedTrap = false;
     score.reset();
     player.dy = player.jumpStrength;
-    player.y = canvas.height - 100;
+    player.y = canvas.height - 150;
     player.x = canvas.width / 2 - 25;
     player.jetpackActive = false;
-    platforms = [new Platform(100, 500, 100, 10)];
+    platforms = [new Platform(canvas.width/2 -50, canvas.height - 150 , 75, 17)];
     platforms.forEach(platform => platform.passed = false);
     previousTime = performance.now();
     targetPlatformY = platforms[0].y;
@@ -318,7 +318,6 @@ async function drawGameOverScreen() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPlayer();
     drawPlatforms(platforms, ctx);
-    ground.draw(ctx);
     gameOverButton.draw(ctx);
     leaderboardButton.draw(ctx);
     score.draw(ctx);
@@ -381,11 +380,9 @@ function handleTouchStart(event) {
     const rect = canvas.getBoundingClientRect();
     const x = event.touches[0].clientX - rect.left;
     const y = event.touches[0].clientY - rect.top;
-
     if (!allowedOrientation) {
         return;
     }
-
     if (!gameStarted && !gameOver && !showingLeaderboard) {
         buttons.forEach(button => {
             if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
@@ -408,7 +405,6 @@ function handleTouchStart(event) {
             }
         });
     }
-
     event.preventDefault();
 }
 
@@ -423,6 +419,7 @@ allowOrientationButton.addClickListener(async () => {
             '/src/assets/images/startScreen/StartScreen2.png',
             '/src/assets/images/startScreen/StartScreen3.png'
         ]);
+        backgroundImage = await preloadPlayerImage('/src/assets/images/Background/background.png');
         overlayImage = await preloadPlayerImage('/src/assets/images/startScreen/Overlay.png');
         showStartScreen();
     }

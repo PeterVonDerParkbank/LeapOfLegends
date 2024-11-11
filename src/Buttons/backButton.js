@@ -14,9 +14,7 @@ export default class BackButton {
         if (this.imageLoaded) {
             ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
         } else {
-            console.log('Starting to load image');
             ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
-            console.log('Image drawn');
 
         }
     }
