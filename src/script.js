@@ -1,7 +1,5 @@
 import Platform from './Elements/platform.js';
 import Leaderboard from './Leaderboard/leaderboard.js';
-import GameOverButton from './Buttons/gameOverButton.js';
-import LeaderboardButton from './Buttons/leaderboardButton.js';
 import AllowOrientationButton from './Buttons/allowOrientation.js';
 import Score from './Score/score.js';
 import { drawPlatforms } from './Gameplay/platformLogic.js';
@@ -19,6 +17,9 @@ let touchedTrap = false;
 let playerImage;
 let overlayImage;
 let backgroundImage;
+let gameOverOverlayImage;
+let scores;
+let personalbest;
 let playerName = 'Peterpunsh99';
 let playerId = '1';
 let platforms = [];
@@ -92,8 +93,30 @@ const MenuButtons = [
         action: showStartScreen
     }
 ];
-const gameOverButton = new GameOverButton(canvas.width / 2 - 50, canvas.height / 2 - 25, 100, 50, 'Restart');
-const leaderboardButton = new LeaderboardButton(100, 400, 200, 50, 'Leaderboard');
+const GameOverButtons = [
+    {
+        x: scaleX * 400,
+        y: scaleY * 1690,
+        width: scaleX * backButtonWidth,
+        height: scaleY * backButtonHeight,
+        action: startGame
+    },
+    {
+        x: scaleX * 640,
+        y: scaleY * 1960,
+        width: scaleX * 200,
+        height: scaleY * 50,
+        action: showLeaderboard
+    },
+    {
+        x: scaleX * 400,
+        y: scaleY * 1960,
+        width: scaleX * 200,
+        height: scaleY * 50,
+        action: showStartScreen
+    }
+];
+
 const leaderboard = new Leaderboard(canvas.width, canvas.height, scaleX, scaleY, backButtonWidth, backButtonHeight);
 const allowOrientationButton = new AllowOrientationButton(100, 300, 200, 100, 'Click to enable\n device orientation');
 
@@ -163,6 +186,7 @@ async function init() {
             ]);
             overlayImage = await preloadPlayerImage('/src/assets/images/startScreen/Overlay.png');
             backgroundImage = await preloadPlayerImage('/src/assets/images/Background/background.png');
+            gameOverOverlayImage = await preloadPlayerImage('/src/assets/images/GameOver/GameOver_Overlay_Lamb.png');
             showStartScreen();
         } else {
             drawAllowOrientationScreen();
@@ -181,7 +205,7 @@ function drawPlayer() {
 let startScreenFrame = 0;
 let startScreenImages = [];
 let startLoop = 0;
-let frameDuration = [10, 1.5, 2.5]; // Duration for each frame in ticks (assuming 60 FPS, 120 ticks = 2 seconds)
+let frameDuration = [10, 2.5, 2.5]; // Duration for each frame in ticks (assuming 60 FPS, 120 ticks = 2 seconds)
 
 
 
@@ -195,13 +219,9 @@ async function animateStartScreen() {
         startLoop = 0;
         startScreenFrame = (startScreenFrame + 1) % startScreenImages.length;
         if (startScreenFrame === 2) {
-            frameDuration[0] = 120;
+            frameDuration[0] = 240;
         }
     }
-
-    ctx.fillStyle = 'black';
-    ctx.font = '20px CustomFont';
-    ctx.fillText(`PB: ${await getPersonalBest(playerName)}`, 10, 60);
 
     if (!gameStarted && !gameOver && !showingLeaderboard) {
         requestAnimationFrame(animateStartScreen);
@@ -316,15 +336,22 @@ function startGame() {
 // Draw Game Over Screen
 async function drawGameOverScreen() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawPlayer();
-    drawPlatforms(platforms, ctx);
-    gameOverButton.draw(ctx);
-    leaderboardButton.draw(ctx);
-    score.draw(ctx);
+    ctx.drawImage(gameOverOverlayImage, 0, 0, canvas.width, canvas.height);
+    personalbest = await getPersonalBest(playerName);
+    scores = await fetchScores();
+    //Draw The Score
+    ctx.fillStyle = '#539ea9'; // Match the blue-green color from the design
+    ctx.font = '25px CustomFont';
+    ctx.textAlign = 'center';
+    ctx.fontWeight = 'bold';
+    ctx.fillText(`${score.score}`, canvas.width / 2, scaleY * 1110);
+    //Draw The Personal Best
+    ctx.fillText(`${personalbest}`, canvas.width / 2, scaleY * 1275);
+    //Draw the best Score
+    ctx.fillText(`${scores[0].score}`, canvas.width / 2, scaleY * 1435);
+    //Draw the name
+    ctx.fillText(`${playerName}`, canvas.width / 2, scaleY * 1595);
 
-    ctx.fillStyle = 'black';
-    ctx.font = '20px CustomFont';
-    ctx.fillText(`PB: ${await getPersonalBest(playerName)}`, 10, 60);
 
     saveScore(score.score, playerId, playerName);
 }
@@ -372,7 +399,16 @@ function showLeaderboard() {
 // Show Start Screen
 function showStartScreen() {
     showingLeaderboard = false;
+    gameStarted = false;
+    gameOver = false;
     animateStartScreen();
+}
+
+async function fetchScores() {
+    const response = await fetch('https://marsloeller.com/api/top10');
+    const data = await response.json();
+    scores = data.top10;
+    return scores;
 }
 
 // Handle Touch Start
@@ -390,13 +426,12 @@ function handleTouchStart(event) {
             }
         });
     } else if (gameOver) {
-        if (gameOverButton.isClicked(x, y)) {
-            startGame();
-        } else if (leaderboardButton.isClicked(x, y)) {
-            showLeaderboard();
-        }
+        GameOverButtons.forEach(button => {
+            if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
+                button.action();
+            }
+        });
     } else if (showingLeaderboard) {
-        console.log('Checking leaderboard buttons');
         MenuButtons.forEach(button => {
             console.log('Checking Menubutton');
             if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
