@@ -152,6 +152,8 @@ async function init() {
     try {
         await ensureFontLoaded();
         playerImage = await preloadPlayerImage('/src/assets/images/Characters/Lamb.png');
+        const platformImage = await preloadPlayerImage('/src/assets/images/Tiles/StandardTile.png');
+        Platform.prototype.image = platformImage; // Setze das vorab geladene Bild in der Plattform-Klasse
         allowedOrientation = await checkOrientationPermission();
         if (allowedOrientation) {
             startScreenImages =  await preloadImages([

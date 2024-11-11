@@ -5,7 +5,7 @@ class Platform {
         this.width = width;
         this.height = height;
         this.passed = false;
-        this.image = new Image();
+        this.image = Platform.prototype.image || new Image();
         this.image.src = '/src/assets/images/Tiles/StandardTile.png';
         this.image.onload = () => {
             this.imageLoaded = true;
