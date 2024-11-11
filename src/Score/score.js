@@ -13,6 +13,6 @@ export default class Score {
     draw(ctx) {
         ctx.fillStyle = '#f04f52';
         ctx.font = '20px CustomFont';
-        ctx.fillText(`${this.score}`, 10, 20);
+        ctx.fillText(`${this.score}`, 20, 20);
     }
 }
