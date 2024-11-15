@@ -22,7 +22,21 @@ export class Jetpack {
         this.active = true;
         player.dy = -10; // Give an initial boost
         player.gravity = 0; // Disable gravity while jetpack is active
-        player.image = this.playerImageWithJetpack;
+        if (player.direction === 'left') {
+            player.image = this.playerImageWithJetpack;
+        } else {
+            //flip image horizontally
+            const offscreenCanvas = document.createElement('canvas');
+            const offscreenCtx = offscreenCanvas.getContext('2d');
+            offscreenCanvas.width = player.width;
+            offscreenCanvas.height = player.height;
+
+            offscreenCtx.translate(player.width, 0);
+            offscreenCtx.scale(-1, 1);
+            offscreenCtx.drawImage(this.playerImageWithJetpack, 0, 0, player.width, player.height);
+
+            player.image = offscreenCanvas;
+        }
         setTimeout(() => {
             this.deactivate(player);
         }, 2500); // Deactivate jetpack after 2.5 seconds
@@ -32,7 +46,23 @@ export class Jetpack {
         this.active = false;
         player.jetpackActive = false;
         player.gravity = 0.25;
-        player.image = this.playerImage;
+
+        if (player.direction === 'left') {
+            console.log
+            player.image = this.playerImage;
+        } else {
+            //flip image horizontally
+            const offscreenCanvas = document.createElement('canvas');
+            const offscreenCtx = offscreenCanvas.getContext('2d');
+            offscreenCanvas.width = player.width;
+            offscreenCanvas.height = player.height;
+
+            offscreenCtx.translate(player.width, 0);
+            offscreenCtx.scale(-1, 1);
+            offscreenCtx.drawImage(this.playerImage, 0, 0, player.width, player.height);
+
+            player.image = offscreenCanvas;
+        }
         console.log('Jetpack deactivated');
     }
 }
