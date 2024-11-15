@@ -59,7 +59,7 @@ let player = {
     dy: 0,
     gravity: 0.25,
     jumpStrength: -10,
-    speed: 3.3,
+    speed: 8.0,
     jetpackActive: false
 };
 
@@ -307,11 +307,18 @@ function handleOrientation(event) {
 
     const tiltLR = event.gamma;
 
-    if (tiltLR < -5) {
-        player.x -= player.speed;
-    } else if (tiltLR > 5) {
-        player.x += player.speed;
-    }
+    // Define a maximum tilt angle for maximum speed
+    const maxTilt = 45; // You can adjust this value as needed
+    const maxSpeed = player.speed; // Maximum speed of the player
+
+    // Calculate the speed based on the tilt angle
+    let speed = (tiltLR / maxTilt) * maxSpeed;
+
+    // Clamp the speed to the maximum speed
+    speed = Math.max(-maxSpeed, Math.min(maxSpeed, speed));
+
+    // Update the player's position
+    player.x += speed;
 }
 
 // Start Game
@@ -449,14 +456,7 @@ allowOrientationButton.addClickListener(async () => {
     allowedOrientation = await checkOrientationPermission();
     if (allowedOrientation) {
         allowOrientationButton.hide();
-        startScreenImages =  await preloadImages([
-            '/src/assets/images/startScreen/StartScreen1.png',
-            '/src/assets/images/startScreen/StartScreen2.png',
-            '/src/assets/images/startScreen/StartScreen3.png'
-        ]);
-        backgroundImage = await preloadPlayerImage('/src/assets/images/Background/background.png');
-        overlayImage = await preloadPlayerImage('/src/assets/images/startScreen/Overlay.png');
-        showStartScreen();
+        init();
     }
 });
 
