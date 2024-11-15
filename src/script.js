@@ -62,6 +62,7 @@ let player = {
     jumpStrength: -10,
     speed: 8.0,
     jetpackActive: false,
+    startImage: null,
     image: null,
     imageWithJetpack: null
 };
@@ -179,6 +180,7 @@ async function init() {
         await ensureFontLoaded();
         playerImage = await preloadPlayerImage('/src/assets/images/Characters/Lamb.png');
         playerImageWithJetpack = await preloadPlayerImage('/src/assets/images/Characters/Lamb_with_jetpack_head.png');
+        player.startImage = playerImage;
         player.image = playerImage; 
         player.imageWithJetpack = playerImageWithJetpack;
         const platformImage = await preloadPlayerImage('/src/assets/images/Tiles/StandardTile.png');
@@ -206,6 +208,21 @@ async function init() {
 function drawPlayer() {
     ctx.drawImage(player.image, player.x, player.y, player.width, player.height);
 }
+
+function animateDirectionChange(newDirection) {
+    const offscreenCanvas = document.createElement('canvas');
+    const offscreenCtx = offscreenCanvas.getContext('2d');
+    offscreenCanvas.width = player.width;
+    offscreenCanvas.height = player.height;
+
+    offscreenCtx.translate(player.width, 0);
+    offscreenCtx.scale(-1, 1);
+    offscreenCtx.drawImage(player.image, 0, 0, player.width, player.height);
+
+    player.image = offscreenCanvas;
+    player.direction = newDirection;
+
+};
 
 //Draw Start Screen
 let startScreenFrame = 0;
@@ -236,7 +253,7 @@ async function animateStartScreen() {
 
 // Update Game State
 function update(currentTime) {
-    if (!gameStarted) return;
+    if (!gameStarted || gameOver) return;
 
     delta_time = currentTime - previousTime;
     delta_time_multiplier = delta_time / interval;
@@ -325,6 +342,12 @@ function handleOrientation(event) {
 
     // Update the player's position
     player.x += speed;
+
+    if (speed > 0 && player.direction !== 'right') {
+        animateDirectionChange('right');
+    } else if (speed < 0 && player.direction !== 'left') {
+        animateDirectionChange('left');
+    }
 }
 
 // Start Game
@@ -337,6 +360,7 @@ function startGame() {
     player.y = canvas.height - 150;
     player.x = canvas.width / 2 - 25;
     player.jetpackActive = false;
+    player.direction = 'left';
     platforms = [new Platform(canvas.width/2 -50, canvas.height - 150 , 75, 17)];
     platforms.forEach(platform => platform.passed = false);
     previousTime = performance.now();

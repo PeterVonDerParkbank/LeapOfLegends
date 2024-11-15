@@ -56,8 +56,8 @@ export function generatePlatform(platforms, player ,canvas, score) {
     }
     
     const newPlatform = PlatformFactory.createPlatform(platformType, newX, newY, platformWidth, platformHeight);
-    if (Math.random() < 0.3 && player.jetpackActive === false && platformType === 'normal') {
-        const jetpack = new Jetpack(newX+platformWidth / 2 -15 , newY - 30, 30, 30, player.image, player.imageWithJetpack);
+    if (Math.random() < 0.02 && player.jetpackActive === false && platformType === 'normal') {
+        const jetpack = new Jetpack(newX+platformWidth / 2 -15 , newY - 30, 30, 30, player.startImage, player.imageWithJetpack);
         newPlatform.jetpack = jetpack;
     }
     platforms.push(newPlatform);
