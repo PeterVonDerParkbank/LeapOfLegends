@@ -25,7 +25,7 @@ export function decrementTrapPlatformCount() {
 }
 
 export function generatePlatform(platforms, player ,canvas, score) {
-    const baseMinPlatformGap = 10; // Minimum vertical gap between platforms
+    const baseMinPlatformGap = 30; // Minimum vertical gap between platforms
     const baseMaxPlatformGap = 100; // Maximum vertical gap between platforms
     const platformWidth = 75;
     const platformHeight = 17;
@@ -56,8 +56,8 @@ export function generatePlatform(platforms, player ,canvas, score) {
     }
     
     const newPlatform = PlatformFactory.createPlatform(platformType, newX, newY, platformWidth, platformHeight);
-    if (Math.random() < 0.03 && player.jetpackActive === false && platformType === 'normal') {
-        const jetpack = new Jetpack(newX+platformWidth / 2 -15, newY - 50, 30, 50);
+    if (Math.random() < 0.3 && player.jetpackActive === false && platformType === 'normal') {
+        const jetpack = new Jetpack(newX+platformWidth / 2 -15 , newY - 30, 30, 30, player.image, player.imageWithJetpack);
         newPlatform.jetpack = jetpack;
     }
     platforms.push(newPlatform);

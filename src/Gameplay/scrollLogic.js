@@ -25,7 +25,7 @@ export function scrollPlatforms(platforms, player, canvas, targetPlatformY, delt
         platforms.forEach(platform => {
             platform.y += scrollSpeed;
             if (platform.jetpack) {
-                platform.jetpack.y = platform.y - 50; // Keep jetpack stationary relative to the platform
+                platform.jetpack.y = platform.y - 30;
             }
         });
 

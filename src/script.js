@@ -15,6 +15,7 @@ let gameOver = false;
 let showingLeaderboard = false;
 let touchedTrap = false;
 let playerImage;
+let playerImageWithJetpack;
 let overlayImage;
 let backgroundImage;
 let gameOverOverlayImage;
@@ -60,7 +61,9 @@ let player = {
     gravity: 0.25,
     jumpStrength: -10,
     speed: 8.0,
-    jetpackActive: false
+    jetpackActive: false,
+    image: null,
+    imageWithJetpack: null
 };
 
 // Initialize Game Elements
@@ -175,6 +178,9 @@ async function init() {
     try {
         await ensureFontLoaded();
         playerImage = await preloadPlayerImage('/src/assets/images/Characters/Lamb.png');
+        playerImageWithJetpack = await preloadPlayerImage('/src/assets/images/Characters/Lamb_with_jetpack_head.png');
+        player.image = playerImage; 
+        player.imageWithJetpack = playerImageWithJetpack;
         const platformImage = await preloadPlayerImage('/src/assets/images/Tiles/StandardTile.png');
         Platform.prototype.image = platformImage; // Setze das vorab geladene Bild in der Plattform-Klasse
         allowedOrientation = await checkOrientationPermission();
@@ -198,7 +204,7 @@ async function init() {
 
 // Draw Player
 function drawPlayer() {
-    ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
+    ctx.drawImage(player.image, player.x, player.y, player.width, player.height);
 }
 
 //Draw Start Screen
