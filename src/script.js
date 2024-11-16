@@ -16,6 +16,7 @@ let showingLeaderboard = false;
 let touchedTrap = false;
 let playerImage;
 let playerImageWithJetpack;
+let playerJumpImages;
 let overlayImage;
 let backgroundImage;
 let gameOverOverlayImage;
@@ -64,7 +65,8 @@ let player = {
     jetpackActive: false,
     startImage: null,
     image: null,
-    imageWithJetpack: null
+    imageWithJetpack: null,
+    jumpImages: null,
 };
 
 // Initialize Game Elements
@@ -180,9 +182,14 @@ async function init() {
         await ensureFontLoaded();
         playerImage = await preloadPlayerImage('/src/assets/images/Characters/Lamb.png');
         playerImageWithJetpack = await preloadPlayerImage('/src/assets/images/Characters/Lamb_with_jetpack_head.png');
+        playerJumpImages = [
+            await preloadPlayerImage('/src/assets/images/Characters/JumpAnimation/Jump_1.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumpAnimation/Jump_2.png')
+        ];
         player.startImage = playerImage;
         player.image = playerImage; 
         player.imageWithJetpack = playerImageWithJetpack;
+        player.jumpImages = playerJumpImages;
         const platformImage = await preloadPlayerImage('/src/assets/images/Tiles/StandardTile.png');
         Platform.prototype.image = platformImage; // Setze das vorab geladene Bild in der Plattform-Klasse
         allowedOrientation = await checkOrientationPermission();
@@ -206,7 +213,24 @@ async function init() {
 
 // Draw Player
 function drawPlayer() {
-    ctx.drawImage(player.image, player.x, player.y, player.width, player.height);
+    let image;
+    if (player.isJumping) {
+        const frame = Math.floor((performance.now() / 100) % player.jumpImages.length);
+        image = player.jumpImages[frame];
+        if (player.direction === 'left') {
+            ctx.drawImage(image, player.x, player.y, player.width, player.height);
+        } else {
+            // Spiegeln des Bildes horizontal
+            ctx.save();
+            ctx.translate(player.x + player.width, player.y);
+            ctx.scale(-1, 1);
+            ctx.drawImage(image, 0, 0, player.width, player.height);
+            ctx.restore();
+        }
+    } else {
+        image = player.image;
+        ctx.drawImage(image, player.x, player.y, player.width, player.height);
+    }
 }
 
 function animateDirectionChange(newDirection) {
@@ -254,28 +278,23 @@ async function animateStartScreen() {
 // Update Game State
 function update(currentTime) {
     if (!gameStarted || gameOver) return;
-
     delta_time = currentTime - previousTime;
     delta_time_multiplier = delta_time / interval;
     player.dy += player.gravity * delta_time_multiplier;
     player.y += player.dy * delta_time_multiplier;
-
     if (player.y + player.height > canvas.height) {
         gameOver = true;
     }
-
     if (gameOver || touchedTrap) {
         gameOver = true;
         drawGameOverScreen();
         return;
     }
-
     if (player.x + player.width < 0) {
         player.x = canvas.width;
     } else if (player.x > canvas.width) {
         player.x = -player.width;
     }
-
     if (scrolling || player.jetpackActive) {
         try {
             const result = scrollPlatforms(platforms, player, canvas, targetPlatformY, delta_time_multiplier, score.score);
@@ -286,14 +305,12 @@ function update(currentTime) {
             console.log(error);
         }
     }
-
     platforms.forEach(platform => {
         if (player.dy < 0 && player.y < platform.y && !platform.passed) {
             platform.passed = true;
             score.increment();
         }
     });
-
     const collisionResult = checkCollision(player, platforms);
     collisionY = collisionResult.platformY;
     touchedTrap = collisionResult.touchedTrap;
@@ -301,7 +318,6 @@ function update(currentTime) {
         scrolling = true;
         targetPlatformY = collisionY;
     }
-
     platforms.forEach(platform => {
         if (platform.jetpack && !platform.jetpack.active &&
             player.x < platform.jetpack.x + platform.jetpack.width &&
@@ -313,7 +329,6 @@ function update(currentTime) {
             platform.jetpack.activate(player);
         }
     });
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     //draw background image
     ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
@@ -361,6 +376,7 @@ function startGame() {
     player.x = canvas.width / 2 - 25;
     player.jetpackActive = false;
     player.direction = 'left';
+    player.image = player.startImage;
     platforms = [new Platform(canvas.width/2 -50, canvas.height - 150 , 75, 17)];
     platforms.forEach(platform => platform.passed = false);
     previousTime = performance.now();
