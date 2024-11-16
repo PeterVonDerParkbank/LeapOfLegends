@@ -1,5 +1,6 @@
 import BreakingPlatform from '../Elements/breakingPlatform.js';
 import TrapPlatform from '../Elements/trapPlatform.js';
+import { playJumpAnimation } from './jumpAnimation.js';
 
 export function checkCollision(player, platforms) {
     let touchedTrap = false;
@@ -11,7 +12,7 @@ export function checkCollision(player, platforms) {
             player.x + player.width > platform.x &&
             player.y + player.height > platform.y &&
             player.y + player.height < platform.y + platform.height) {
-            player.dy = player.jumpStrength;
+            playJumpAnimation(player);
             if (platform instanceof BreakingPlatform) {
                 platform.touch();
                 platforms.splice(i, 1); // Remove the platform after touching it
