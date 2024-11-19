@@ -5,5 +5,5 @@ export function playJumpAnimation(player) {
     //set a timeout to end the jumpo animation after a short duration
     setTimeout(() => {
         player.isJumping = false;
-    }, 150);
+    }, 200);
 }
