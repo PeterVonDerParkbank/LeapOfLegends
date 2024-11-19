@@ -45,7 +45,7 @@ export function generatePlatform(platforms, player, canvas, score) {
     const platformHeight = 17;
 
     // Increase the gap based on the score
-    const gapIncrease = Math.floor(score / 1000) * 10; // Increase gap by 10 for every 100 points
+    const gapIncrease = Math.floor(score / 3000) * 10; // Increase gap by 10 for every 100 points
     const minPlatformGap = Math.min(80, Math.floor(baseMinPlatformGap + gapIncrease));
     const maxPlatformGap = Math.min(180, Math.floor(baseMaxPlatformGap + gapIncrease));
 
