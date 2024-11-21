@@ -67,6 +67,9 @@ let player = {
     image: null,
     imageWithJetpack: null,
     jumpImages: null,
+    somersaultImages: null,
+    somersaultStartTime: null,
+    isSomersaulting: false
 };
 
 // Initialize Game Elements
@@ -190,6 +193,22 @@ async function init() {
         player.image = playerImage; 
         player.imageWithJetpack = playerImageWithJetpack;
         player.jumpImages = playerJumpImages;
+        player.somersaultImages = [
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame01.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame02.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame03.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame04.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame05.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame06.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame07.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame08.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame09.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame10.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame11.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame12.png')
+        ];
+
+
         const platformImage = await preloadPlayerImage('/src/assets/images/Tiles/StandardTile.png');
         Platform.prototype.image = platformImage; // Setze das vorab geladene Bild in der Plattform-Klasse
         allowedOrientation = await checkOrientationPermission();
@@ -246,6 +265,14 @@ function animateDirectionChange(newDirection) {
     player.image = offscreenCanvas;
     player.direction = newDirection;
 
+};
+
+function startSomersaultAnimation(player) {
+    player.isSomersaulting = true;
+    player.somersaultStartTime = performance.now();
+    setTimeout(() => {
+        player.isSomersaulting = false;
+    }, 1200);
 };
 
 //Draw Start Screen
