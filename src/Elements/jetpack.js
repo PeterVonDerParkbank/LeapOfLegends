@@ -48,7 +48,6 @@ export class Jetpack {
         player.gravity = 0.25;
 
         if (player.direction === 'left') {
-            console.log
             player.image = this.playerImage;
         } else {
             //flip image horizontally
@@ -63,6 +62,5 @@ export class Jetpack {
 
             player.image = offscreenCanvas;
         }
-        console.log('Jetpack deactivated');
     }
 }

@@ -48,9 +48,9 @@ export function generatePlatform(platforms, player ,canvas, score) {
         platformType = 'moving';
     } else if (determinePlatformType < 0.2) {
         platformType = 'breaking';
-    } else if (determinePlatformType < 0.25 && trapPlatformCount < maxTrapPlatforms) {
-        platformType = 'trap';
-        incrementTrapPlatformCount();
+    } else if (determinePlatformType < 0.3 /*&& trapPlatformCount < maxTrapPlatforms*/) {
+        platformType = 'jumppad';
+        //incrementTrapPlatformCount();
     } else {
         platformType = 'normal';
     }

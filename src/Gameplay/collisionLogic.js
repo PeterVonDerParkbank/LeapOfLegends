@@ -1,6 +1,8 @@
 import BreakingPlatform from '../Elements/breakingPlatform.js';
 import TrapPlatform from '../Elements/trapPlatform.js';
 import { playJumpAnimation } from './jumpAnimation.js';
+import JumpPadPlatform from '../Elements/jumppadPlatform.js';
+import { startSomersaultAnimation } from './somersaultAnimation.js';
 
 export function checkCollision(player, platforms) {
     let touchedTrap = false;
@@ -16,6 +18,10 @@ export function checkCollision(player, platforms) {
             if (platform instanceof BreakingPlatform) {
                 platform.touch();
                 platforms.splice(i, 1); // Remove the platform after touching it
+            }
+            if (platform instanceof JumpPadPlatform) {
+                startSomersaultAnimation(player);
+                player.dy = player.jumpStrength * 1.5; // Adjust the multiplier as needed
             }
             if (platform instanceof TrapPlatform) {
                 platform.touch();

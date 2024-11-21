@@ -233,7 +233,13 @@ async function init() {
 // Draw Player
 function drawPlayer() {
     let image;
-    if (player.isJumping) {
+    if (player.isSomersaulting) {
+        console.log("Somersault sollte an sein")
+        const elapsedTime = performance.now() - player.somersaultStartTime;
+        const frame = Math.floor((elapsedTime / 50) % player.somersaultImages.length);
+        image = player.somersaultImages[frame];
+        ctx.drawImage(image, player.x, player.y, player.width, player.height);
+    } else if (player.isJumping) {
         const frame = Math.floor((performance.now() / 100) % player.jumpImages.length);
         image = player.jumpImages[frame];
         if (player.direction === 'left') {
@@ -265,14 +271,6 @@ function animateDirectionChange(newDirection) {
     player.image = offscreenCanvas;
     player.direction = newDirection;
 
-};
-
-function startSomersaultAnimation(player) {
-    player.isSomersaulting = true;
-    player.somersaultStartTime = performance.now();
-    setTimeout(() => {
-        player.isSomersaulting = false;
-    }, 1200);
 };
 
 //Draw Start Screen
@@ -322,7 +320,7 @@ function update(currentTime) {
     } else if (player.x > canvas.width) {
         player.x = -player.width;
     }
-    if (scrolling || player.jetpackActive) {
+    if (scrolling || player.jetpackActive || player.isSomersaulting) {
         try {
             const result = scrollPlatforms(platforms, player, canvas, targetPlatformY, delta_time_multiplier, score.score);
             platforms = result.platforms;
