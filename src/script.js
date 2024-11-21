@@ -320,7 +320,7 @@ function update(currentTime) {
     } else if (player.x > canvas.width) {
         player.x = -player.width;
     }
-    if (scrolling || player.jetpackActive || player.isSomersaulting) {
+    if (scrolling || player.jetpackActive ) {
         try {
             const result = scrollPlatforms(platforms, player, canvas, targetPlatformY, delta_time_multiplier, score.score);
             platforms = result.platforms;
