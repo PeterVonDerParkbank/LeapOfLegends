@@ -25,13 +25,13 @@ export function decrementTrapPlatformCount() {
 }
 
 export function generatePlatform(platforms, player ,canvas, score) {
-    const baseMinPlatformGap = 30; // Minimum vertical gap between platforms
-    const baseMaxPlatformGap = 100; // Maximum vertical gap between platforms
+    const baseMinPlatformGap = 25; // Minimum vertical gap between platforms
+    const baseMaxPlatformGap = 75; // Maximum vertical gap between platforms
     const platformWidth = 75;
     const platformHeight = 17;
 
     // Increase the gap based on the score
-    const gapIncrease = Math.floor(score / 1000) * 10; // Increase gap by 10 for every 100 points
+    const gapIncrease = Math.floor(score / 1500) * 8; // Increase gap by 10 for every 100 points
     const minPlatformGap = Math.min(80,Math.floor(baseMinPlatformGap + gapIncrease));
     const maxPlatformGap = Math.min(180,Math.floor(baseMaxPlatformGap + gapIncrease));
 
@@ -44,18 +44,29 @@ export function generatePlatform(platforms, player ,canvas, score) {
     const determinePlatformType = Math.random();
     const maxPlatforms = calculateMaxPlatforms(score);
     const maxTrapPlatforms = Math.floor(maxPlatforms / 3);
-    if (determinePlatformType < 0.1) {
+
+    const movingChance = Math.min(0.15, 0.05 + (score / 10000)); // Increases with score
+    const breakingChance = Math.min(0.15, 0.05 + (score / 8000));
+    const jumppadChance = Math.min(0.05, 0.15 - (score / 8000));
+
+    if (determinePlatformType < movingChance) {
         platformType = 'moving';
-    } else if (determinePlatformType < 0.2) {
+    } else if (determinePlatformType < movingChance + breakingChance) {
         platformType = 'breaking';
-    } else if (determinePlatformType < 0.3 /*&& trapPlatformCount < maxTrapPlatforms*/) {
+    } else if (determinePlatformType < movingChance + breakingChance + jumppadChance) {
         platformType = 'jumppad';
-        //incrementTrapPlatformCount();
     } else {
         platformType = 'normal';
     }
     
     const newPlatform = PlatformFactory.createPlatform(platformType, newX, newY, platformWidth, platformHeight);
+    if (platformType === 'moving') {
+        const baseSpeed = 2;
+        const maxSpeedIncrease = 4;
+        const speedIncrease = Math.min(maxSpeedIncrease, Math.floor(score / 4000));
+        newPlatform.speed = baseSpeed + speedIncrease;
+    }
+    
     if (Math.random() < 0.02 && player.jetpackActive === false && platformType === 'normal') {
         const jetpack = new Jetpack(newX+platformWidth / 2 -15 , newY - 30, 30, 30, player.startImage, player.imageWithJetpack);
         newPlatform.jetpack = jetpack;

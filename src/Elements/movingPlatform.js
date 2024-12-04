@@ -1,10 +1,10 @@
 import Platform from './platform.js';
 
 export default class MovingPlatform extends Platform {
-    constructor(x, y, width, height, speed = 1.5) {
+    constructor(x, y, width, height) {
         super(x, y, width, height);
-        this.speed = speed;
-        this.direction = 1; // 1 for right, -1 for left
+        this.speed = 2; // Default speed
+        this.direction = 1;
         this.image = new Image();
         this.image.src = '/src/assets/images/Tiles/MovingTile.png';
     }
