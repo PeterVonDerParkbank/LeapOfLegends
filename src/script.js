@@ -67,6 +67,9 @@ let player = {
     image: null,
     imageWithJetpack: null,
     jumpImages: null,
+    somersaultImages: null,
+    somersaultStartTime: null,
+    isSomersaulting: false
 };
 
 // Initialize Game Elements
@@ -190,6 +193,22 @@ async function init() {
         player.image = playerImage; 
         player.imageWithJetpack = playerImageWithJetpack;
         player.jumpImages = playerJumpImages;
+        player.somersaultImages = [
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame01.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame02.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame03.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame04.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame05.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame06.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame07.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame08.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame09.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame10.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame11.png'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame12.png')
+        ];
+
+
         const platformImage = await preloadPlayerImage('/src/assets/images/Tiles/StandardTile.png');
         Platform.prototype.image = platformImage; // Setze das vorab geladene Bild in der Plattform-Klasse
         allowedOrientation = await checkOrientationPermission();
@@ -214,7 +233,13 @@ async function init() {
 // Draw Player
 function drawPlayer() {
     let image;
-    if (player.isJumping) {
+    if (player.isSomersaulting) {
+        console.log("Somersault sollte an sein")
+        const elapsedTime = performance.now() - player.somersaultStartTime;
+        const frame = Math.floor((elapsedTime / 50) % player.somersaultImages.length);
+        image = player.somersaultImages[frame];
+        ctx.drawImage(image, player.x, player.y, player.width, player.height);
+    } else if (player.isJumping) {
         const frame = Math.floor((performance.now() / 100) % player.jumpImages.length);
         image = player.jumpImages[frame];
         if (player.direction === 'left') {
@@ -295,7 +320,7 @@ function update(currentTime) {
     } else if (player.x > canvas.width) {
         player.x = -player.width;
     }
-    if (scrolling || player.jetpackActive) {
+    if (scrolling || player.jetpackActive ) {
         try {
             const result = scrollPlatforms(platforms, player, canvas, targetPlatformY, delta_time_multiplier, score.score);
             platforms = result.platforms;

@@ -11,7 +11,12 @@ export function calculateMaxPlatforms(score) {
 }
 
 export function scrollPlatforms(platforms, player, canvas, targetPlatformY, delta_time_multiplier, score) {
-    const targetY = canvas.height - 100; // Target position above the bottom edge
+    let targetY;
+    if (player.isSomersaulting) {
+        targetY = canvas.height - 100; // Target position above the bottom edge
+    } else {
+        targetY = canvas.height - 100; // Target position above the bottom edge
+    };
     const distanceToScroll = targetY - targetPlatformY;
     const maxScrollSpeed = 11.5; // Increased maximum scroll speed
     const minScrollSpeed = 2; // Increased minimum scroll speed
