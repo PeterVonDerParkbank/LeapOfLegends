@@ -5,6 +5,7 @@ import Score from './Score/score.js';
 import { drawPlatforms } from './Gameplay/platformLogic.js';
 import { scrollPlatforms } from './Gameplay/scrollLogic.js';
 import { checkCollision } from './Gameplay/collisionLogic.js';
+import { spawnMonster, updateMonsters, checkMonsterCollisions, drawMonsters } from './Gameplay/monsterLogic.js';
 
 // Global Variables
 const initData = Telegram.WebApp.initDataUnsafe;
@@ -25,6 +26,7 @@ let personalbest;
 let playerName = 'Peterpunsh99';
 let playerId = '1';
 let platforms = [];
+let monsters = [];
 let scrolling = false;
 let targetPlatformY = 0;
 let collisionY = null;
@@ -303,6 +305,7 @@ async function animateStartScreen() {
 // Update Game State
 function update(currentTime) {
     if (!gameStarted || gameOver) return;
+
     delta_time = currentTime - previousTime;
     delta_time_multiplier = delta_time / interval;
     player.dy += player.gravity * delta_time_multiplier;
@@ -320,6 +323,18 @@ function update(currentTime) {
     } else if (player.x > canvas.width) {
         player.x = -player.width;
     }
+    if (gameStarted && !gameOver) {
+        spawnMonster(platforms, monsters, score.score);
+        updateMonsters(monsters, delta_time_multiplier);
+        
+        const monsterCollision = checkMonsterCollisions(player, monsters);
+        if (monsterCollision === true) {
+            gameOver = true;
+        } else if (monsterCollision === 'killed') {
+            score.increment(); // Add bonus score for killing monster
+        }
+    }
+
     if (scrolling || player.jetpackActive ) {
         try {
             const result = scrollPlatforms(platforms, player, canvas, targetPlatformY, delta_time_multiplier, score.score);
@@ -358,6 +373,7 @@ function update(currentTime) {
     //draw background image
     ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
     drawPlatforms(platforms, ctx);
+    drawMonsters(monsters, ctx);
     drawPlayer();
     score.draw(ctx);
     previousTime = performance.now();
@@ -402,6 +418,7 @@ function startGame() {
     player.jetpackActive = false;
     player.direction = 'left';
     player.image = player.startImage;
+    monsters = [];
     platforms = [new Platform(canvas.width/2 -50, canvas.height - 150 , 75, 17)];
     platforms.forEach(platform => platform.passed = false);
     previousTime = performance.now();
