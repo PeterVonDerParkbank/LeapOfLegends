@@ -32,6 +32,9 @@ export function scrollPlatforms(platforms, player, canvas, targetPlatformY, delt
             if (platform.jetpack) {
                 platform.jetpack.y = platform.y - 30;
             }
+            if (platform.monster) {
+                platform.monster.y += scrollSpeed;
+            }
         });
 
         player.y += scrollSpeed;
@@ -42,6 +45,10 @@ export function scrollPlatforms(platforms, player, canvas, targetPlatformY, delt
             if (p.y >= canvas.height) {
                 if (p instanceof TrapPlatform) {
                     decrementTrapPlatformCount();
+                }
+                // If platform has monster, remove it
+                if (p.monster) {
+                    p.monster = null;
                 }
                 return false;
             }

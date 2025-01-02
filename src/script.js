@@ -303,6 +303,7 @@ async function animateStartScreen() {
 // Update Game State
 function update(currentTime) {
     if (!gameStarted || gameOver) return;
+
     delta_time = currentTime - previousTime;
     delta_time_multiplier = delta_time / interval;
     player.dy += player.gravity * delta_time_multiplier;
@@ -310,6 +311,24 @@ function update(currentTime) {
     if (player.y + player.height > canvas.height) {
         gameOver = true;
     }
+    const monsters = platforms
+        .filter(p => p.monster)
+        .map(p => p.monster);
+    
+    monsters.forEach(monster => {
+        if (monster) {
+            const collision = monster.checkCollision(player);
+            if (collision === 'hit') {
+                gameOver = true;
+            } else if (collision === 'killed') {
+                score.increment();
+                monster.isDead = true;
+                scrolling = true;
+                targetPlatformY = monster.platform.y;
+            }
+        }
+    });
+
     if (gameOver || touchedTrap) {
         gameOver = true;
         drawGameOverScreen();
@@ -320,6 +339,7 @@ function update(currentTime) {
     } else if (player.x > canvas.width) {
         player.x = -player.width;
     }
+
     if (scrolling || player.jetpackActive ) {
         try {
             const result = scrollPlatforms(platforms, player, canvas, targetPlatformY, delta_time_multiplier, score.score);
