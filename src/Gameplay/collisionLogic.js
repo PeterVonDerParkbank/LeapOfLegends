@@ -23,6 +23,7 @@ export function checkCollision(player, platforms) {
                 startSomersaultAnimation(player);
                 player.dy = player.jumpStrength * 1.5; // Adjust the multiplier as needed
             }
+            
             if (platform instanceof TrapPlatform) {
                 platform.touch();
                 touchedTrap = true;

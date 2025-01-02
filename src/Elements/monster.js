@@ -37,7 +37,6 @@ export default class Monster {
             player.x < this.x + this.width &&
             player.x + player.width > this.x) {
             this.isDead = true;
-            this.deathTime = performance.now(); // Add this when monster dies
             player.dy = player.jumpStrength; // Bounce off monster
             return 'killed';
         }
@@ -46,7 +45,8 @@ export default class Monster {
         if (player.x < this.x + this.width &&
             player.x + player.width > this.x &&
             player.y < this.y + this.height &&
-            player.y + player.height > this.y) {
+            player.y + player.height > this.y &&
+            player.jetpackActive === false) {
             return 'hit';
         }
 

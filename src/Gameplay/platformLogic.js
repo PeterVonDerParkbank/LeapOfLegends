@@ -1,12 +1,18 @@
 import PlatformFactory from '../Elements/platformFactory.js';
+import MonsterFactory from '../Elements/monsterFactory.js';
 import { calculateMaxPlatforms } from '../Gameplay/scrollLogic.js';
 import { Jetpack } from '../Elements/jetpack.js';
 
 export function drawPlatforms(platforms, ctx) {
     platforms.forEach(platform => {
         platform.draw(ctx);
+    });
+    platforms.forEach(platform => {
         if (platform.jetpack) {
             platform.jetpack.draw(ctx);
+        }
+        if (platform.monster) {
+            platform.monster.draw(ctx);
         }
     });
 }
@@ -67,10 +73,21 @@ export function generatePlatform(platforms, player ,canvas, score) {
         newPlatform.speed = baseSpeed + speedIncrease;
     }
     
-    if (Math.random() < 0.02 && player.jetpackActive === false && platformType === 'normal') {
+    if (Math.random() < 0.02 && player.jetpackActive === false && platformType === 'normal' && score > 500) {
         const jetpack = new Jetpack(newX+platformWidth / 2 -15 , newY - 30, 30, 30, player.startImage, player.imageWithJetpack);
         newPlatform.jetpack = jetpack;
     }
+
+    const shouldSpawnMonster = Math.random() < 0.02 && // 5% chance
+                            score > 500 && // Only spawn monsters after 500 points
+                            !newPlatform.jetpack &&
+                            platformType === 'normal' &&
+                            player.jetpackActive === false
+    
+    if (shouldSpawnMonster) {
+        newPlatform.monster = MonsterFactory.createMonster(newPlatform);
+    }
+    console.log(newPlatform);
     platforms.push(newPlatform);
 
     
