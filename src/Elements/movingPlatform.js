@@ -7,6 +7,7 @@ export default class MovingPlatform extends Platform {
         this.direction = 1;
         this.image = new Image();
         this.image.src = '/src/assets/images/Tiles/MovingTile.png';
+        this.type = 'moving';
     }
 
     update(canvas) {

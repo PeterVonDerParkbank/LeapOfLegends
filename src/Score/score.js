@@ -2,8 +2,18 @@ export default class Score {
     constructor() {
         this.score = 0;
     }
-    increment() {
-        this.score += 10;
+    increment(platform) {
+        //implement different scores for different platforms
+        //
+        if (platform.type === 'moving') {
+            this.score += 7;
+        } else if (platform.type === 'breaking') {
+            this.score += 11;
+        } else if (platform.type === 'jumppad') {
+            this.score += 3;
+        } else {
+            this.score += 8;
+        }
     }
     
     reset() {
@@ -11,8 +21,12 @@ export default class Score {
     }
     
     draw(ctx) {
+        ctx.save();
         ctx.fillStyle = '#f04f52';
         ctx.font = '20px CustomFont';
-        ctx.fillText(`${this.score}`, 20, 20);
+        ctx.textAlign = 'left';    
+        ctx.textBaseline = 'top';
+        ctx.fillText(`${this.score}`, 30, 5);
+        ctx.restore();
     }
 }

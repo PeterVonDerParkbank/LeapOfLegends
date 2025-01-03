@@ -78,7 +78,7 @@ export function generatePlatform(platforms, player ,canvas, score) {
         newPlatform.jetpack = jetpack;
     }
 
-    const shouldSpawnMonster = Math.random() < 0.02 && // 5% chance
+    const shouldSpawnMonster = Math.random() < 0.22 && // 5% chance
                             score > 500 && // Only spawn monsters after 500 points
                             !newPlatform.jetpack &&
                             platformType === 'normal' &&
@@ -87,7 +87,6 @@ export function generatePlatform(platforms, player ,canvas, score) {
     if (shouldSpawnMonster) {
         newPlatform.monster = MonsterFactory.createMonster(newPlatform);
     }
-    console.log(newPlatform);
     platforms.push(newPlatform);
 
     

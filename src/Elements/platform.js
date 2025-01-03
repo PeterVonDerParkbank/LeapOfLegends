@@ -11,6 +11,7 @@ class Platform {
         this.image.onload = () => {
             this.imageLoaded = true;
         };
+        this.type = 'normal';
     }
 
     draw(ctx) {

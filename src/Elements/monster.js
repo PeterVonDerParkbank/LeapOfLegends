@@ -30,10 +30,13 @@ export default class Monster {
         // Check if player is above monster (jump-kill)
         const playerBottom = player.y + player.height;
         const monsterTop = this.y;
+        const verticalOverlap = playerBottom - monsterTop;
+        const killZoneHeight = 10; // Tolerance zone in pixels
         
         if (player.dy > 0 && // Player is falling
-            playerBottom >= monsterTop && 
-            player.y <= monsterTop &&
+            verticalOverlap >= 0 && 
+            verticalOverlap <= killZoneHeight && // Only count as kill if mostly above
+            player.y < monsterTop && // Player must be above monster
             player.x < this.x + this.width &&
             player.x + player.width > this.x) {
             this.isDead = true;

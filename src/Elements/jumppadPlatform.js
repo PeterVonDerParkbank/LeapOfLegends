@@ -6,6 +6,7 @@ export default class JumpPadPlatform extends Platform {
         this.touched = false;
         this.image = new Image();
         this.image.src = 'src/assets/images/Tiles/TrapTile.png';
+        this.type = 'jumppad';
     }
 
     draw(ctx) {

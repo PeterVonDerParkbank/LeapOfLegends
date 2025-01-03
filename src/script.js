@@ -321,7 +321,7 @@ function update(currentTime) {
             if (collision === 'hit') {
                 gameOver = true;
             } else if (collision === 'killed') {
-                score.increment();
+                score.increment(monster.platform);
                 monster.isDead = true;
                 scrolling = true;
                 targetPlatformY = monster.platform.y;
@@ -353,7 +353,7 @@ function update(currentTime) {
     platforms.forEach(platform => {
         if (player.dy < 0 && player.y < platform.y && !platform.passed) {
             platform.passed = true;
-            score.increment();
+            score.increment(platform);
         }
     });
     const collisionResult = checkCollision(player, platforms);
@@ -433,6 +433,7 @@ function startGame() {
 
 // Draw Game Over Screen
 async function drawGameOverScreen() {
+    ctx.restore();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(gameOverOverlayImage, 0, 0, canvas.width, canvas.height);
     personalbest = await getPersonalBest(playerName);

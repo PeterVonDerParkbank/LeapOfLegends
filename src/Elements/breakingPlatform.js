@@ -9,6 +9,7 @@ export default class BreakingPlatform extends Platform {
         this.image.onload = () => {
             this.imageLoaded = true;
         };
+        this.type = 'breaking';
     }
 
     draw(ctx) {
