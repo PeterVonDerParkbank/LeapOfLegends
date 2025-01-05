@@ -67,6 +67,7 @@ export function generatePlatform(platforms, player ,canvas, score) {
     const movingChance = Math.min(0.15, 0.05 + (score / 10000)); // Increases with score
     const breakingChance = Math.min(0.15, 0.05 + (score / 8000));
     const jumppadChance = Math.min(0.05, 0.15 - (score / 8000)); // Decreases with score
+    const trapChance = Math.min(0.05, 0.05 + (score / 10000)); // Increases with score
 
     if (determinePlatformType < movingChance) {
         platformType = 'moving';
@@ -74,6 +75,9 @@ export function generatePlatform(platforms, player ,canvas, score) {
         platformType = 'breaking';
     } else if (determinePlatformType < movingChance + breakingChance + jumppadChance) {
         platformType = 'jumppad';
+    } else if (determinePlatformType < movingChance + breakingChance + jumppadChance + trapChance && trapPlatformCount < maxTrapPlatforms) {
+        platformType = 'trap';
+        incrementTrapPlatformCount();
     } else {
         platformType = 'normal';
     }

@@ -13,6 +13,8 @@ export default class PlatformFactory {
                 return new BreakingPlatform(x, y, width, height);
             case 'jumppad':
                 return new JumpPadPlatform(x, y, width, height);
+            case 'trap':
+                return new TrapPlatform(x, y, width, height);
             case 'normal':
             default:
                 return new Platform(x, y, width, height);
