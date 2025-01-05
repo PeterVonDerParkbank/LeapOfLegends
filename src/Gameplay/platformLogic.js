@@ -46,14 +46,27 @@ export function generatePlatform(platforms, player ,canvas, score) {
     const lastPlatform = platforms[platforms.length - 1];
     newY = lastPlatform.y - (Math.random() * (maxPlatformGap - minPlatformGap) + minPlatformGap);
     newX = Math.random() * (canvas.width - platformWidth);
-
+    // Check if new platform is overlapping a monster in platform.monster
+    const buffer = 5; // 5 pixel buffer
+    const isOverlapping = platforms.some(platform => {
+        if (!platform.monster) return false;
+        return newY < (platform.monster.y + platform.monster.height + buffer) &&
+            (newY + platformHeight + buffer) > platform.monster.y &&
+            newX < (platform.monster.x + platform.monster.width + buffer) &&
+            (newX + platformWidth + buffer) > platform.monster.x;
+    });
+    console.log(isOverlapping);
+    // if new platform is overlapping a monster shift it up by the height of the monster
+    if (isOverlapping) {
+        newY = newY - 60 - buffer;
+    }
     const determinePlatformType = Math.random();
     const maxPlatforms = calculateMaxPlatforms(score);
     const maxTrapPlatforms = Math.floor(maxPlatforms / 3);
 
     const movingChance = Math.min(0.15, 0.05 + (score / 10000)); // Increases with score
     const breakingChance = Math.min(0.15, 0.05 + (score / 8000));
-    const jumppadChance = Math.min(0.05, 0.15 - (score / 8000));
+    const jumppadChance = Math.min(0.05, 0.15 - (score / 8000)); // Decreases with score
 
     if (determinePlatformType < movingChance) {
         platformType = 'moving';
@@ -78,14 +91,14 @@ export function generatePlatform(platforms, player ,canvas, score) {
         newPlatform.jetpack = jetpack;
     }
 
-    const shouldSpawnMonster = Math.random() < 0.22 && // 5% chance
+    const shouldSpawnMonster = Math.random() < 0.04 && // 5% chance
                             score > 500 && // Only spawn monsters after 500 points
                             !newPlatform.jetpack &&
                             platformType === 'normal' &&
                             player.jetpackActive === false
     
     if (shouldSpawnMonster) {
-        newPlatform.monster = MonsterFactory.createMonster(newPlatform);
+        newPlatform.monster = MonsterFactory.createMonster(newPlatform, canvas, platforms);
     }
     platforms.push(newPlatform);
 
