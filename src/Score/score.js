@@ -27,6 +27,10 @@ export default class Score {
         ctx.textAlign = 'left';    
         ctx.textBaseline = 'top';
         ctx.fillText(`${this.score}`, 30, 5);
+
+        // Draw coin counter
+        ctx.textAlign = 'right';
+        ctx.fillText(`${player.coins} 🪙`, canvas.width - 30, 5);
         ctx.restore();
     }
 }

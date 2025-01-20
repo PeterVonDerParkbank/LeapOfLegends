@@ -68,7 +68,6 @@ export function scrollPlatforms(platforms, player, canvas, targetPlatformY, delt
         }
     } else {
         if (targetPlatformY > dynamicThreshold) {
-            console.log(targetPlatformY);
             targetPlatformY = dynamicThreshold; // Ensure targetPlatformY does not exceed the maximum value
         };
         const remainingDistance = targetY - targetPlatformY;

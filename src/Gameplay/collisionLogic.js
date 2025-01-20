@@ -8,6 +8,16 @@ export function checkCollision(player, platforms) {
     let touchedTrap = false;
     for (let i = 0; i < platforms.length; i++) {
         const platform = platforms[i];
+
+        if (platform.coin && !platform.coin.collected) {
+            if (player.x < platform.coin.x + platform.coin.width &&
+                player.x + player.width > platform.coin.x &&
+                player.y < platform.coin.y + platform.coin.height &&
+                player.y + player.height > platform.coin.y) {
+                platform.coin.collected = true;
+                player.coins++; // Increment coin counter
+            }
+        }
         
         if (player.dy > 0 && 
             player.x < platform.x + platform.width &&
