@@ -35,6 +35,9 @@ export function scrollPlatforms(platforms, player, canvas, targetPlatformY, delt
             if (platform.monster) {
                 platform.monster.y += scrollSpeed;
             }
+            if (platform.coin) {
+                platform.coin.y += scrollSpeed;
+            }
         });
 
         player.y += scrollSpeed;

@@ -6,7 +6,7 @@ export class Coin {
         this.height = height;
         this.collected = false;
         this.image = new Image();
-        this.image.src = 'src/assets/images/Collectables/coin_olympus.png';
+        this.image.src = 'src/assets/images/Collectables/coin_olympus_2.png';
     }
 
     draw(ctx) {

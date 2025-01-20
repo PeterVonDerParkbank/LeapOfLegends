@@ -20,7 +20,7 @@ export default class Score {
         this.score = 0;
     }
     
-    draw(ctx) {
+    draw(ctx,canvas,player) {
         ctx.save();
         ctx.fillStyle = '#f04f52';
         ctx.font = '20px CustomFont';
@@ -30,7 +30,7 @@ export default class Score {
 
         // Draw coin counter
         ctx.textAlign = 'right';
-        ctx.fillText(`${player.coins} 🪙`, canvas.width - 30, 5);
+        ctx.fillText(`${player.coins}`, canvas.width - 30, 5);
         ctx.restore();
     }
 }

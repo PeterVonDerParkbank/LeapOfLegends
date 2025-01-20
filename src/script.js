@@ -62,6 +62,7 @@ let player = {
     gravity: 0.25,
     jumpStrength: -10,
     speed: 8.0,
+    coins: 0,
     jetpackActive: false,
     startImage: null,
     image: null,
@@ -379,7 +380,7 @@ function update(currentTime) {
     ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
     drawPlatforms(platforms, ctx);
     drawPlayer();
-    score.draw(ctx);
+    score.draw(ctx,canvas,player);
     previousTime = performance.now();
     requestAnimationFrame(update);
 }
@@ -421,6 +422,7 @@ function startGame() {
     player.x = canvas.width / 2 - 25;
     player.jetpackActive = false;
     player.direction = 'left';
+    player.coins =8;
     player.image = player.startImage;
     platforms = [new Platform(canvas.width/2 -50, canvas.height - 150 , 75, 17)];
     platforms.forEach(platform => platform.passed = false);

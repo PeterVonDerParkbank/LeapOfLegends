@@ -15,6 +15,9 @@ export function drawPlatforms(platforms, ctx) {
         if (platform.monster) {
             platform.monster.draw(ctx);
         }
+        if (platform.coin) {
+            platform.coin.draw(ctx);
+        }
     });
 }
 let trapPlatformCount = 0;
@@ -94,7 +97,7 @@ export function generatePlatform(platforms, player ,canvas, score) {
     if (Math.random() < 0.02 && player.jetpackActive === false && platformType === 'normal' && score > 500) {
         const jetpack = new Jetpack(newX+platformWidth / 2 -15 , newY - 30, 30, 30, player.startImage, player.imageWithJetpack);
         newPlatform.jetpack = jetpack;
-    } else if (Math.random() < 0.05 && platformType === 'normal') {
+    } else if (Math.random() < 0.5 && platformType === 'normal') {
         const coin = new Coin(
             newX + platformWidth / 2 - 15, 
             newY - 30, 
