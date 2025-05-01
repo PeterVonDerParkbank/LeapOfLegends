@@ -542,7 +542,69 @@ function handleTouchStart(event) {
     event.preventDefault();
 }
 
+function handleMouseDown(event) {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    if (!allowedOrientation) {
+        return;
+    }
+    if (!gameStarted && !gameOver && !showingLeaderboard) {
+        buttons.forEach(button => {
+            if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
+                button.action();
+            }
+        });
+    } else if (gameOver) {
+        GameOverButtons.forEach(button => {
+            if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
+                button.action();
+            }
+        });
+    } else if (showingLeaderboard) {
+        MenuButtons.forEach(button => {
+            if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
+                button.action();
+            }
+        });
+    }
+    event.preventDefault();
+}
+
+// --- Desktop Drag & Drop Steuerung ---
+let isDragging = false;
+let dragStartX = 0;
+
+canvas.addEventListener('mousedown', function(event) {
+    // Nur im Spiel aktiv
+    if (!gameStarted || gameOver) return;
+    isDragging = true;
+    dragStartX = event.clientX;
+});
+
+canvas.addEventListener('mousemove', function(event) {
+    if (!isDragging) return;
+    const deltaX = event.clientX - dragStartX;
+    dragStartX = event.clientX;
+    player.x += deltaX;
+
+    // Richtung für Animation setzen
+    if (deltaX > 0 && player.direction !== 'right') {
+        animateDirectionChange('right');
+    } else if (deltaX < 0 && player.direction !== 'left') {
+        animateDirectionChange('left');
+    }
+});
+
 // Event Listeners
+canvas.addEventListener('mouseup', function() {
+    isDragging = false;
+});
+
+canvas.addEventListener('mouseleave', function() {
+    isDragging = false;
+});
+canvas.addEventListener('mousedown', handleMouseDown);
 canvas.addEventListener('touchstart', handleTouchStart);
 allowOrientationButton.addClickListener(async () => {
     allowedOrientation = await checkOrientationPermission();
