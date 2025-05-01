@@ -429,6 +429,7 @@ function startGame() {
     previousTime = performance.now();
     targetPlatformY = platforms[0].y;
     scrolling = false;
+    lastMouseX = canvas.width / 2;
     requestAnimationFrame(update);
 }
 
@@ -576,20 +577,34 @@ function handleMouseDown(event) {
 // --- Desktop Drag & Drop Steuerung ---
 let isDragging = false;
 let dragStartX = 0;
+let lastMouseX = null;
 
-canvas.addEventListener('mousedown', function(event) {
+/*canvas.addEventListener('mousedown', function(event) {
     // Nur im Spiel aktiv
     if (!gameStarted || gameOver) return;
     isDragging = true;
     dragStartX = event.clientX;
-});
+});*/
 
 canvas.addEventListener('mousemove', function(event) {
-    if (!isDragging) return;
-    const deltaX = event.clientX - dragStartX;
-    dragStartX = event.clientX;
+    if (!gameStarted || gameOver) return;
+    
+    // Speichere die aktuelle Mausposition
+    const currentMouseX = event.clientX;
+    
+    // Beim ersten Bewegen der Maus nur Position setzen, keine Bewegung
+    if (lastMouseX === null) {
+        lastMouseX = currentMouseX;
+        return;
+    }
+    
+    // Berechne Bewegungsdelta
+    const deltaX = currentMouseX - lastMouseX;
+    lastMouseX = currentMouseX;
+    
+    // Bewege Spieler
     player.x += deltaX;
-
+    
     // Richtung für Animation setzen
     if (deltaX > 0 && player.direction !== 'right') {
         animateDirectionChange('right');
@@ -599,13 +614,21 @@ canvas.addEventListener('mousemove', function(event) {
 });
 
 // Event Listeners
-canvas.addEventListener('mouseup', function() {
+canvas.addEventListener('mouseleave', function() {
+    lastMouseX = null;
+});
+
+// Reset beim Wiederbetreten des Fensters
+canvas.addEventListener('mouseenter', function() {
+    lastMouseX = null;
+});
+/*canvas.addEventListener('mouseup', function() {
     isDragging = false;
 });
 
 canvas.addEventListener('mouseleave', function() {
     isDragging = false;
-});
+});*/
 canvas.addEventListener('mousedown', handleMouseDown);
 canvas.addEventListener('touchstart', handleTouchStart);
 allowOrientationButton.addClickListener(async () => {
