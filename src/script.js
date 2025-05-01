@@ -577,15 +577,15 @@ function handleMouseDown(event) {
 let isDragging = false;
 let dragStartX = 0;
 
-canvas.addEventListener('mousedown', function(event) {
+/*canvas.addEventListener('mousedown', function(event) {
     // Nur im Spiel aktiv
     if (!gameStarted || gameOver) return;
     isDragging = true;
     dragStartX = event.clientX;
-});
+});*/
 
 canvas.addEventListener('mousemove', function(event) {
-    if (!isDragging) return;
+    if (!gameStarted) return;
     const deltaX = event.clientX - dragStartX;
     dragStartX = event.clientX;
     player.x += deltaX;
@@ -599,13 +599,13 @@ canvas.addEventListener('mousemove', function(event) {
 });
 
 // Event Listeners
-canvas.addEventListener('mouseup', function() {
+/*canvas.addEventListener('mouseup', function() {
     isDragging = false;
 });
 
 canvas.addEventListener('mouseleave', function() {
     isDragging = false;
-});
+});*/
 canvas.addEventListener('mousedown', handleMouseDown);
 canvas.addEventListener('touchstart', handleTouchStart);
 allowOrientationButton.addClickListener(async () => {
