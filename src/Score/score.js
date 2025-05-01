@@ -20,13 +20,17 @@ export default class Score {
         this.score = 0;
     }
     
-    draw(ctx) {
+    draw(ctx,canvas,player) {
         ctx.save();
         ctx.fillStyle = '#f04f52';
         ctx.font = '20px CustomFont';
         ctx.textAlign = 'left';    
         ctx.textBaseline = 'top';
         ctx.fillText(`${this.score}`, 30, 5);
+
+        // Draw coin counter
+        ctx.textAlign = 'right';
+        ctx.fillText(`${player.coins}`, canvas.width - 30, 5);
         ctx.restore();
     }
 }
