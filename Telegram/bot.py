@@ -11,16 +11,27 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [
             InlineKeyboardButton(
-                "🎮 Spiel starten", 
+                "Launch Leap of Legends", 
                 web_app=WebAppInfo(url="https://marsloeller.com")
             )
         ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
+    image_path = "./TitleBild.png"
+
+    message_text = (
+        "Welcome to *Leap of Legends* by [Olympus Prime](https://x.com/OlympusPr1me)! \n\n"
+        "You have been *trapped* for what feels like forever, held *prisoner* in the *Cyclops*' dark, stony cave. 🐑\n\n" 
+        "Heart pounding, you seize your chance and *sprint* toward the cave’s entrance, each step faster than the last, the *light of freedom* just within reach. 🔆\n\n" 
+        "*Try to reach the highest platform before the Cyclops catches you!* 😈"        
+    )
+
+    with open(image_path, 'rb') as photo:
+        await update.message.reply_photo(photo=photo)
+    
     await update.message.reply_text(
-        "Willkommen bei *Leap of Legends*! 🧠⚔️\n\n"
-        "Drücke unten auf „🎮 Spiel starten“, um sofort loszulegen.",
+        message_text,
         reply_markup=reply_markup,
         parse_mode="Markdown"
     )
