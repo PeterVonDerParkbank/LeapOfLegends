@@ -1,5 +1,6 @@
 import Platform from './Elements/platform.js';
 import Leaderboard from './Leaderboard/leaderboard.js';
+import About from './About/about.js';
 import AllowOrientationButton from './Buttons/allowOrientation.js';
 import Score from './Score/score.js';
 import { drawPlatforms } from './Gameplay/platformLogic.js';
@@ -13,6 +14,7 @@ let allowedOrientation = false;
 let gameStarted = false;
 let gameOver = false;
 let showingLeaderboard = false;
+let showingAbout = false;
 let touchedTrap = false;
 let playerImage;
 let playerImageWithJetpack;
@@ -92,6 +94,13 @@ const buttons = [
         width: scaleX * 200,
         height: scaleY * 50,
         action: showLeaderboard
+    },
+    {
+        x: scaleX * 200,
+        y: scaleY * 1972,
+        width: scaleX * 200,
+        height: scaleY * 50,
+        action: showAboutScreen
     }
 ];
 const MenuButtons = [
@@ -129,6 +138,7 @@ const GameOverButtons = [
 
 const leaderboard = new Leaderboard(canvas.width, canvas.height, scaleX, scaleY, backButtonWidth, backButtonHeight);
 const allowOrientationButton = new AllowOrientationButton(100, 300, 200, 100, 'Click to enable\n device orientation');
+const about = new About(canvas.width, canvas.height, scaleX, scaleY, backButtonWidth, backButtonHeight);
 
 // Initialize Player Info
 if (userInfo) {
@@ -296,7 +306,7 @@ async function animateStartScreen() {
         }
     }
 
-    if (!gameStarted && !gameOver && !showingLeaderboard) {
+    if (!gameStarted && !gameOver && !showingLeaderboard && !showingAbout) {
         requestAnimationFrame(animateStartScreen);
     }
 }
@@ -498,11 +508,20 @@ function showLeaderboard() {
     leaderboard.draw(ctx, canvas.width, canvas.height);
 }
 
+function showAboutScreen() {
+    gameOver = false;
+    gameStarted = false;
+    showingAbout = true;
+    console.log('About Screen');
+    about.draw(ctx, canvas.width, canvas.height);
+}
+
 // Show Start Screen
 function showStartScreen() {
     showingLeaderboard = false;
     gameStarted = false;
     gameOver = false;
+    showingAbout = false;
     animateStartScreen();
 }
 
@@ -521,7 +540,7 @@ function handleTouchStart(event) {
     if (!allowedOrientation) {
         return;
     }
-    if (!gameStarted && !gameOver && !showingLeaderboard) {
+    if (!gameStarted && !gameOver && !showingLeaderboard && !showingAbout) {
         buttons.forEach(button => {
             if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
                 button.action();
@@ -541,6 +560,14 @@ function handleTouchStart(event) {
                 button.action();
             }
         });
+    } else if (showingAbout) {
+        MenuButtons.forEach(button => {
+            console.log('Checking Menubutton');
+            if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
+                console.log('Button clicked');
+                button.action();
+            }
+        });
     }
     event.preventDefault();
 }
@@ -552,7 +579,7 @@ function handleMouseDown(event) {
     if (!allowedOrientation) {
         return;
     }
-    if (!gameStarted && !gameOver && !showingLeaderboard) {
+    if (!gameStarted && !gameOver && !showingLeaderboard && !showingAbout) {
         buttons.forEach(button => {
             if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
                 button.action();
@@ -567,6 +594,14 @@ function handleMouseDown(event) {
     } else if (showingLeaderboard) {
         MenuButtons.forEach(button => {
             if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
+                button.action();
+            }
+        });
+    } else if (showingAbout) {
+        MenuButtons.forEach(button => {
+            console.log('Checking Menubutton');
+            if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
+                console.log('Button clicked');
                 button.action();
             }
         });
