@@ -245,7 +245,6 @@ async function init() {
 function drawPlayer() {
     let image;
     if (player.isSomersaulting) {
-        console.log("Somersault sollte an sein")
         const elapsedTime = performance.now() - player.somersaultStartTime;
         const frame = Math.floor((elapsedTime / 50) % player.somersaultImages.length);
         image = player.somersaultImages[frame];

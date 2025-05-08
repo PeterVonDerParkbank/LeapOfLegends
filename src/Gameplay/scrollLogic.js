@@ -13,7 +13,7 @@ export function calculateMaxPlatforms(score) {
 export function scrollPlatforms(platforms, player, canvas, targetPlatformY, delta_time_multiplier, score) {
     let targetY;
     if (player.isSomersaulting) {
-        targetY = canvas.height - 100; // Target position above the bottom edge
+        targetY = canvas.height - 500; // Target position above the bottom edge
     } else {
         targetY = canvas.height - 100; // Target position above the bottom edge
     };
@@ -26,7 +26,7 @@ export function scrollPlatforms(platforms, player, canvas, targetPlatformY, delt
 
     const dynamicThreshold = canvas.height - 100; // Dynamic threshold for scrolling
 
-    if (targetPlatformY + scrollSpeed < targetY || player.jetpackActive) {
+    if (targetPlatformY + scrollSpeed < targetY || player.jetpackActive || player.isSomersaulting) {
         platforms.forEach(platform => {
             platform.y += scrollSpeed;
             if (platform.jetpack) {
