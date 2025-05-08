@@ -3,7 +3,7 @@ import Platform from './platform.js';
 export default class TrapPlatform extends Platform {
     static sharedImage = (() => {
         const img = new Image();
-        img.src = '/src/assets/images/Tiles/MovingTile.webp';
+        img.src = '/src/assets/images/Tiles/TrapTile.webp';
         img.onload = () => { this.imageLoaded = true; };
         return img;
     })();

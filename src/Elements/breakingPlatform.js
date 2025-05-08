@@ -15,8 +15,14 @@ export default class BreakingPlatform extends Platform {
     }
 
     draw(ctx) {
-        if (!this.touched && this.imageLoaded) {
-            ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+        if (!this.touched) {
+            if (this.image.complete) {
+                ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+            } else {
+                this.image.onload = () => {
+                    ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+                };
+            }
         }
     }
 
