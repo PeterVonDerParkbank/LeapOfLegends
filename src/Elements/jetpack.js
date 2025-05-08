@@ -1,13 +1,18 @@
 // src/Elements/jetpack.js
 export class Jetpack {
+    static sharedImage = (() => {
+        const img = new Image();
+        img.src = 'src/assets/images/shoes.webp';
+        img.onload = () => { this.imageLoaded = true; };
+        return img;
+    })();
     constructor(x, y, width, height, playerImage, playerImageWithJetpack) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.active = false;
-        this.image = new Image();
-        this.image.src = 'src/assets/images/shoes.png';
+        this.image = Jetpack.sharedImage
         this.playerImageWithJetpack = playerImageWithJetpack;
         this.playerImage = playerImage;
     }

@@ -12,7 +12,7 @@ export default class About {
 
         // Load background image for the about screen
         const backgroundImage = new Image();
-        backgroundImage.src = 'src/assets/images/leaderBoardScreen/leaderBoardBackground_short.png';
+        backgroundImage.src = 'src/assets/images/leaderBoardScreen/aboutBackground.webp';
 
         backgroundImage.onload = () => {
             ctx.drawImage(backgroundImage, 0, 0, canvas_width, canvas_height);

@@ -7,7 +7,7 @@ export default class Monster {
         this.platform = platform;
         this.isDead = false;
         this.image = new Image();
-        this.image.src = '/src/assets/images/Characters/Monster.png';
+        this.image.src = '/src/assets/images/Characters/Monster.webp';
         this.deathTime = 0;
     }
 

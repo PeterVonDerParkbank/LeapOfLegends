@@ -1,12 +1,17 @@
 export default class BackButton {
+    static sharedImage = (() => {
+        const img = new Image();
+        img.src = 'src/assets/images/leaderBoardScreen/backButton.webp';
+        img.onload = () => { this.imageLoaded = true; };
+        return img;
+    })();
     constructor(x, y, width, height, text) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.text = text;
-        this.image = new Image();
-        this.image.src = 'src/assets/images/leaderBoardScreen/backButton.png';
+        this.image = BackButton.sharedImage
         this.image.loaded = false;
     }
 
