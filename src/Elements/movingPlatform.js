@@ -1,12 +1,17 @@
 import Platform from './platform.js';
 
 export default class MovingPlatform extends Platform {
+    static sharedImage = (() => {
+        const img = new Image();
+        img.src = '/src/assets/images/Tiles/MovingTile.webp';
+        img.onload = () => { this.imageLoaded = true; };
+        return img;
+    })();
     constructor(x, y, width, height) {
         super(x, y, width, height);
         this.speed = 2; // Default speed
         this.direction = 1;
-        this.image = new Image();
-        this.image.src = '/src/assets/images/Tiles/MovingTile.png';
+        this.image = MovingPlatform.sharedImage
         this.type = 'moving';
     }
 

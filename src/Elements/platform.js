@@ -1,4 +1,11 @@
 class Platform {
+
+    static sharedImage = (() => {
+        const img = new Image();
+        img.src = '/src/assets/images/Tiles/StandardTile.webp';
+        img.onload = () => { this.imageLoaded = true; };
+        return img;
+    })();
     constructor(x, y, width, height) {
         this.x = x;
         this.y = y;
@@ -6,11 +13,7 @@ class Platform {
         this.height = height;
         this.passed = false;
         this.monster = null;
-        this.image = Platform.prototype.image || new Image();
-        this.image.src = '/src/assets/images/Tiles/StandardTile.png';
-        this.image.onload = () => {
-            this.imageLoaded = true;
-        };
+        this.image = Platform.sharedImage
         this.type = 'normal';
     }
 

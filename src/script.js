@@ -194,29 +194,29 @@ async function ensureFontLoaded() {
 async function init() {
     try {
         await ensureFontLoaded();
-        playerImage = await preloadPlayerImage('/src/assets/images/Characters/Lamb.png');
-        playerImageWithJetpack = await preloadPlayerImage('/src/assets/images/Characters/Lamb_with_jetpack_head.png');
+        playerImage = await preloadPlayerImage('/src/assets/images/Characters/Lamb.webp');
+        playerImageWithJetpack = await preloadPlayerImage('/src/assets/images/Characters/Lamb_with_jetpack_head.webp');
         playerJumpImages = [
-            await preloadPlayerImage('/src/assets/images/Characters/JumpAnimation/Jump_1.png'),
-            await preloadPlayerImage('/src/assets/images/Characters/JumpAnimation/Jump_2.png')
+            await preloadPlayerImage('/src/assets/images/Characters/JumpAnimation/Jump_1.webp'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumpAnimation/Jump_2.webp')
         ];
         player.startImage = playerImage;
         player.image = playerImage; 
         player.imageWithJetpack = playerImageWithJetpack;
         player.jumpImages = playerJumpImages;
         player.somersaultImages = [
-            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame01.png'),
-            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame02.png'),
-            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame03.png'),
-            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame04.png'),
-            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame05.png'),
-            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame06.png'),
-            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame07.png'),
-            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame08.png'),
-            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame09.png'),
-            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame10.png'),
-            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame11.png'),
-            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame12.png')
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame01.webp'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame02.webp'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame03.webp'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame04.webp'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame05.webp'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame06.webp'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame07.webp'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame08.webp'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame09.webp'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame10.webp'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame11.webp'),
+            await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame12.webp')
         ];
 
 
@@ -225,13 +225,13 @@ async function init() {
         allowedOrientation = await checkOrientationPermission();
         if (allowedOrientation) {
             startScreenImages =  await preloadImages([
-                '/src/assets/images/startScreen/StartScreen1.png',
-                '/src/assets/images/startScreen/StartScreen2.png',
-                '/src/assets/images/startScreen/StartScreen3.png'
+                '/src/assets/images/startScreen/StartScreen1.webp',
+                '/src/assets/images/startScreen/StartScreen2.webp',
+                '/src/assets/images/startScreen/StartScreen3.webp'
             ]);
-            overlayImage = await preloadPlayerImage('/src/assets/images/startScreen/Overlay.png');
-            backgroundImage = await preloadPlayerImage('/src/assets/images/Background/background.png');
-            gameOverOverlayImage = await preloadPlayerImage('/src/assets/images/GameOver/GameOver_Overlay_Lamb.png');
+            overlayImage = await preloadPlayerImage('/src/assets/images/startScreen/Overlay.webp');
+            backgroundImage = await preloadPlayerImage('/src/assets/images/Background/background.webp');
+            gameOverOverlayImage = await preloadPlayerImage('/src/assets/images/GameOver/GameOver_Overlay_Lamb.webp');
             showStartScreen();
         } else {
             drawAllowOrientationScreen();

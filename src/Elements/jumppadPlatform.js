@@ -1,11 +1,16 @@
 import Platform from './platform.js';
 
 export default class JumpPadPlatform extends Platform {
+    static sharedImage = (() => {
+        const img = new Image();
+        img.src = '/src/assets/images/Tiles/JumpPadTile.webp';
+        img.onload = () => { this.imageLoaded = true; };
+        return img;
+    })();
     constructor(x, y, width, height) {
         super(x, y, width, height);
         this.touched = false;
-        this.image = new Image();
-        this.image.src = 'src/assets/images/Tiles/JumpPadTile.png';
+        this.image = JumpPadPlatform.sharedImage
         this.type = 'jumppad';
     }
 
