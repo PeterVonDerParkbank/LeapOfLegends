@@ -4,7 +4,7 @@ import { playJumpAnimation } from './jumpAnimation.js';
 import JumpPadPlatform from '../Elements/jumppadPlatform.js';
 import { startSomersaultAnimation } from './somersaultAnimation.js';
 
-export function checkCollision(player, platforms) {
+export function checkCollision(player, platforms,soundManager) {
     let touchedTrap = false;
     for (let i = 0; i < platforms.length; i++) {
         const platform = platforms[i];
@@ -24,6 +24,7 @@ export function checkCollision(player, platforms) {
             player.x + player.width > platform.x &&
             player.y + player.height > platform.y &&
             player.y + player.height < platform.y + platform.height) {
+            soundManager.play("jump");
             playJumpAnimation(player);
             if (platform instanceof BreakingPlatform) {
                 platform.touch();
