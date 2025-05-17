@@ -93,6 +93,36 @@ async function getTop10() {
     }
 }
 
+// Define resetLeaderboard function
+async function resetLeaderboard() {
+    const leaderboardRef = db.collection('leaderboard').doc('top100');
+    const leaderboardDoc = await leaderboardRef.get();
+    if (leaderboardDoc.exists) {
+        const scores = [];
+        await leaderboardRef.update({ scores });
+    } else {
+        await leaderboardRef.set({ scores: [] });
+    }
+}
+
+async function resetPlayerScores() {
+    try {
+        const collectionRef = db.collection('players');
+        const snapshot = await getDocs(collectionRef);
+    
+        const updatePromises = snapshot.docs.map(async (docSnapshot) => {
+          const docRef = db.doc('players',docSnapshot.id);
+          await updateDoc(docRef, { scores: [] });
+          console.log(`Document ${docSnapshot.id} updated successfully.`);
+        });
+    
+        await Promise.all(updatePromises);
+        return 'Done'
+      } catch (error) {
+        return error;
+      }
+}
+
 // Define API endpoints
 app.get('/api/top10', async (req, res) => {
     try {
@@ -133,6 +163,15 @@ app.post('/api/score', async (req, res) => {
     }
 });
 
+
+app.get('/api/resetLeaderboard', async (req, res) => {
+    try {
+        await resetLeaderboard()
+        res.status(200).send('Success!')
+    } catch (error) {
+        res.status(500).send('Error resetting Leaderboard: ' + error.message);
+    }
+});
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

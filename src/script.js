@@ -458,12 +458,14 @@ async function drawGameOverScreen() {
     //Draw The Personal Best
     ctx.fillText(`${personalbest}`, canvas.width / 2, scaleY * 1275);
     //Draw the best Score
-    ctx.fillText(`${scores[0].score}`, canvas.width / 2, scaleY * 1435);
+    if (scores.length > 0) {
+        ctx.fillText(`${scores[0].score}`, canvas.width / 2, scaleY * 1435);
+    } else {
+        ctx.fillText(`${score.score}`, canvas.width / 2, scaleY * 1435);
+    }
     //Draw the name
     ctx.fillText(`${playerName}`, canvas.width / 2, scaleY * 1595);
-
-
-    saveScore(score.score, playerId, playerName);
+    await saveScore(score.score, playerId, playerName);
 }
 
 // Draw Allow Orientation Screen
