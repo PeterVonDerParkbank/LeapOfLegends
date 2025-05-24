@@ -14,6 +14,7 @@ const userInfo = initData.user;
 let allowedOrientation = false;
 let gameStarted = false;
 let gameOver = false;
+let musicStarted = false;
 let showingLeaderboard = false;
 let showingAbout = false;
 let touchedTrap = false;
@@ -34,6 +35,7 @@ let collisionY = null;
 const score = new Score();
 const soundManager = new SoundManager();
 soundManager.addSound("jump", "/src/assets/sounds/jump.mp3");
+soundManager.addSound("bgm",'/src/assets/sounds/bgm_1.mp3')
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
@@ -425,6 +427,10 @@ function handleOrientation(event) {
 
 // Start Game
 function startGame() {
+    if (!musicStarted) {
+        soundManager.playMusic("bgm")
+        musicStarted = true;
+    }
     gameStarted = true;
     gameOver = false;
     touchedTrap = false;
