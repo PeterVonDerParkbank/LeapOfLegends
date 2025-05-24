@@ -3,6 +3,7 @@ import Leaderboard from './Leaderboard/leaderboard.js';
 import About from './About/about.js';
 import AllowOrientationButton from './Buttons/allowOrientation.js';
 import Score from './Score/score.js';
+import SoundManager from './Sound/soundManager.js';
 import { drawPlatforms } from './Gameplay/platformLogic.js';
 import { scrollPlatforms } from './Gameplay/scrollLogic.js';
 import { checkCollision } from './Gameplay/collisionLogic.js';
@@ -31,6 +32,8 @@ let scrolling = false;
 let targetPlatformY = 0;
 let collisionY = null;
 const score = new Score();
+const soundManager = new SoundManager();
+soundManager.addSound("jump", "/src/assets/sounds/jump.mp3");
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
@@ -366,7 +369,7 @@ function update(currentTime) {
             score.increment(platform);
         }
     });
-    const collisionResult = checkCollision(player, platforms);
+    const collisionResult = checkCollision(player, platforms,soundManager);
     collisionY = collisionResult.platformY;
     touchedTrap = collisionResult.touchedTrap;
     if (collisionY !== null) {
