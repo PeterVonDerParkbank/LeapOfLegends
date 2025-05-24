@@ -32,13 +32,15 @@ export default class Monster {
         const monsterTop = this.y;
         const verticalOverlap = playerBottom - monsterTop;
         const killZoneHeight = 10; // Tolerance zone in pixels
+        const horizontalForgiveness = 10; // In Pixeln
         
         if (player.dy > 0 && // Player is falling
             verticalOverlap >= 0 && 
             verticalOverlap <= killZoneHeight && // Only count as kill if mostly above
             player.y < monsterTop && // Player must be above monster
-            player.x < this.x + this.width &&
-            player.x + player.width > this.x) {
+            player.x < this.x + this.width + horizontalForgiveness &&
+            player.x + player.width > this.x - horizontalForgiveness
+        ) {
             this.isDead = true;
             player.dy = player.jumpStrength; // Bounce off monster
             return 'killed';
