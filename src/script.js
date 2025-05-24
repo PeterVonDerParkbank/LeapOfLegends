@@ -34,6 +34,7 @@ let targetPlatformY = 0;
 let collisionY = null;
 const score = new Score();
 const soundManager = new SoundManager();
+soundManager.unlockAudio();
 soundManager.addSound("jump", "/src/assets/sounds/jump.mp3");
 soundManager.addSound("bgm",'/src/assets/sounds/bgm_1.mp3')
 const canvas = document.getElementById('gameCanvas');
@@ -318,7 +319,6 @@ async function animateStartScreen() {
 // Update Game State
 function update(currentTime) {
     if (!gameStarted || gameOver) return;
-
     delta_time = currentTime - previousTime;
     delta_time_multiplier = delta_time / interval;
     player.dy += player.gravity * delta_time_multiplier;
@@ -427,10 +427,6 @@ function handleOrientation(event) {
 
 // Start Game
 function startGame() {
-    if (!musicStarted) {
-        soundManager.playMusic("bgm");
-        musicStarted = true;
-    }
     gameStarted = true;
     gameOver = false;
     touchedTrap = false;
@@ -447,6 +443,13 @@ function startGame() {
     targetPlatformY = platforms[0].y;
     scrolling = false;
     lastMouseX = canvas.width / 2;
+    if (!musicStarted) {
+        setTimeout(() => {
+            //soundManager.playEffect("jump");
+            soundManager.playMusic("bgm");
+        }, 100); // 50 ms Pause
+        musicStarted = true;
+    }
     requestAnimationFrame(update);
 }
 
