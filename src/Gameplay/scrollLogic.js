@@ -3,9 +3,9 @@ import { generatePlatform, decrementTrapPlatformCount } from './platformLogic.js
 import TrapPlatform from '../Elements/trapPlatform.js';
 
 export function calculateMaxPlatforms(score) {
-    const initialMaxPlatforms = 25;
+    const initialMaxPlatforms = 20;
     const minPlatforms = 5;
-    const scoreThreshold = 1500;
+    const scoreThreshold = 1000;
     const maxPlatforms = Math.max(minPlatforms, initialMaxPlatforms - Math.floor(score / scoreThreshold));
     return maxPlatforms;
 }

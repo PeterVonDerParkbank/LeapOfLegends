@@ -107,7 +107,7 @@ export function generatePlatform(platforms, player ,canvas, score) {
         newPlatform.coin = coin;
     }
 
-    const shouldSpawnMonster = Math.random() < 0.04 && // 5% chance
+    const shouldSpawnMonster = Math.random() < 0.04 && // 4% chance
                             score > 500 && // Only spawn monsters after 500 points
                             !newPlatform.jetpack &&
                             platformType === 'normal' &&
