@@ -428,7 +428,7 @@ function handleOrientation(event) {
 // Start Game
 function startGame() {
     if (!musicStarted) {
-        soundManager.playMusic("bgm")
+        soundManager.playMusic("bgm");
         musicStarted = true;
     }
     gameStarted = true;
