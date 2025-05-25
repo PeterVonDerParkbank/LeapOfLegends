@@ -1,12 +1,22 @@
-// Sound Manager für das Jump-Spiel
 export default class SoundManager {
     constructor() {
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         this.buffers = {};
-        this.volume = 1.0; // Standardlautstärke (100%)
-        this.gainNode = this.audioContext.createGain();
-        this.gainNode.gain.value = this.volume;
-        this.gainNode.connect(this.audioContext.destination);
+        this.activeMusicSources = {};
+        this.volume = {
+            music: 0.5,
+            effects: 1.0,
+        };
+
+        // Zwei getrennte Gain-Nodes
+        this.musicGain = this.audioContext.createGain();
+        this.effectsGain = this.audioContext.createGain();
+        this.musicGain.gain.value = this.volume.music;
+        this.effectsGain.gain.value = this.volume.effects;
+
+        // Beide gehen direkt an die Audio-Ausgabe
+        this.musicGain.connect(this.audioContext.destination);
+        this.effectsGain.connect(this.audioContext.destination);
     }
 
     async addSound(name, src) {
@@ -21,25 +31,58 @@ export default class SoundManager {
         }
     }
 
-    play(name) {
+    // Soundeffekte abspielen (kurz, kein Loop)
+    playEffect(name) {
         const buffer = this.buffers[name];
         if (buffer) {
             const source = this.audioContext.createBufferSource();
             source.buffer = buffer;
-            source.connect(this.gainNode);
+            source.connect(this.effectsGain);
             source.start();
         } else {
-            console.warn(`Sound '${name}' nicht gefunden.`);
+            console.warn(`Effekt '${name}' nicht gefunden.`);
         }
     }
 
-    setVolume(value) {
-        this.volume = Math.min(Math.max(value, 0), 1); // Begrenze auf 0 bis 1
-        this.gainNode.gain.value = this.volume;
+    // Musik abspielen (looped)
+    playMusic(name) {
+        const buffer = this.buffers[name];
+        if (buffer) {
+            const source = this.audioContext.createBufferSource();
+            source.buffer = buffer;
+            source.loop = true;
+            source.connect(this.musicGain);
+            source.start();
+            this.activeMusicSources[name] = source;
+        } else {
+            console.warn(`Musik '${name}' nicht gefunden.`);
+        }
     }
 
-    getVolume() {
-        return this.volume;
+    stopMusic(name) {
+        const source = this.activeMusicSources[name];
+        if (source) {
+            source.stop();
+            delete this.activeMusicSources[name];
+        }
+    }
+
+    setMusicVolume(value) {
+        this.volume.music = Math.min(Math.max(value, 0), 1);
+        this.musicGain.gain.value = this.volume.music;
+    }
+
+    getMusicVolume() {
+        return this.volume.music;
+    }
+
+    setEffectsVolume(value) {
+        this.volume.effects = Math.min(Math.max(value, 0), 1);
+        this.effectsGain.gain.value = this.volume.effects;
+    }
+
+    getEffectsVolume() {
+        return this.volume.effects;
     }
 
     unlockAudio() {

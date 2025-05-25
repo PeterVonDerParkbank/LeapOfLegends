@@ -24,7 +24,7 @@ export function checkCollision(player, platforms,soundManager) {
             player.x + player.width > platform.x &&
             player.y + player.height > platform.y &&
             player.y + player.height < platform.y + platform.height) {
-            soundManager.play("jump");
+            soundManager.playEffect("jump");
             playJumpAnimation(player);
             if (platform instanceof BreakingPlatform) {
                 platform.touch();
