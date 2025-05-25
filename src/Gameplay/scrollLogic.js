@@ -15,9 +15,8 @@ export function scrollPlatforms(platforms, player, canvas, delta_time_multiplier
     const targetY = player.isSomersaulting || player.jetpackActive
         ? canvas.height * 0.3  // Wenn spezieller Zustand → höheres Scroll-Ziel
         : canvas.height * 0.6; // Normalfall → Spieler eher unten anzeigen
-
+        
     const distanceToScroll = targetY - player.y;
-
     const maxScrollSpeed = 11.5;
     const minScrollSpeed = 2;
 
@@ -67,9 +66,7 @@ export function scrollPlatforms(platforms, player, canvas, delta_time_multiplier
 
         // Neue Plattform erzeugen, wenn nötig
         if (platforms.length < maxPlatforms) {
-            console.log("NEW PLATFORM!!!!")
             const lastPlatform = platforms[platforms.length - 1];
-            console.log(lastPlatform)
             if (!lastPlatform || lastPlatform.y > 0) {
                 generatePlatform(platforms, player, canvas, score);
             }
