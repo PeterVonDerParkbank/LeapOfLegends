@@ -30,7 +30,6 @@ let playerName = 'Peterpunsh99';
 let playerId = '1';
 let platforms = [];
 let scrolling = false;
-let targetPlatformY = 0;
 let collisionY = null;
 const score = new Score();
 const soundManager = new SoundManager();
@@ -339,7 +338,6 @@ function update(currentTime) {
                 score.increment(monster.platform);
                 monster.isDead = true;
                 scrolling = true;
-                targetPlatformY = monster.platform.y;
             }
         }
     });
@@ -357,10 +355,9 @@ function update(currentTime) {
 
     if (scrolling || player.jetpackActive ) {
         try {
-            const result = scrollPlatforms(platforms, player, canvas, targetPlatformY, delta_time_multiplier, score.score);
+            const result = scrollPlatforms(platforms, player, canvas, delta_time_multiplier, score.score);
             platforms = result.platforms;
             scrolling = result.scrolling;
-            targetPlatformY = result.targetPlatformY;
         } catch (error) {
             console.log(error);
         }
@@ -376,7 +373,6 @@ function update(currentTime) {
     touchedTrap = collisionResult.touchedTrap;
     if (collisionY !== null) {
         scrolling = true;
-        targetPlatformY = collisionY;
     }
     platforms.forEach(platform => {
         if (platform.jetpack && !platform.jetpack.active &&
@@ -437,15 +433,13 @@ function startGame() {
     player.jetpackActive = false;
     player.direction = 'left';
     player.image = player.startImage;
-    platforms = [new Platform(canvas.width/2 -50, canvas.height - 150 , 75, 17)];
+    platforms = [new Platform(canvas.width/2 -50, canvas.height - 150 , 75, 17), new Platform(canvas.width/2 - 50, canvas.height - 250, 75, 17), new Platform(canvas.width/2 - 50, canvas.height - 350, 75, 17), new Platform(canvas.width/2 - 50, canvas.height - 450, 75, 17)];
     platforms.forEach(platform => platform.passed = false);
     previousTime = performance.now();
-    targetPlatformY = platforms[0].y;
     scrolling = false;
     lastMouseX = canvas.width / 2;
     if (!musicStarted) {
         setTimeout(() => {
-            //soundManager.playEffect("jump");
             soundManager.playMusic("bgm");
         }, 100); // 50 ms Pause
         musicStarted = true;

@@ -4,7 +4,6 @@ export default class About {
     constructor(canvas_width, canvas_height, scaleX, scaleY, backButtonWidth, backButtonHeight) {
         const backButtonY = canvas_height - 120;
         this.backButton = new BackButton(canvas_width / 2 - scaleX*backButtonWidth / 2, backButtonY, scaleX*backButtonWidth, scaleY*backButtonHeight, 'Back');
-        console.log(this.backButton);
     }
 
     async draw(ctx, canvas_width, canvas_height) {

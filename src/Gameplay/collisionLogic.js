@@ -32,7 +32,7 @@ export function checkCollision(player, platforms,soundManager) {
             }
             if (platform instanceof JumpPadPlatform) {
                 startSomersaultAnimation(player);
-                player.dy = player.jumpStrength * 1.5; // Adjust the multiplier as needed
+                player.dy = player.jumpStrength * 1.75; // Adjust the multiplier as needed
             }
             
             if (platform instanceof TrapPlatform) {
