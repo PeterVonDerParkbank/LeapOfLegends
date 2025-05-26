@@ -234,7 +234,7 @@ async function init() {
                 '/src/assets/images/startScreen/StartScreen2.webp',
                 '/src/assets/images/startScreen/StartScreen3.webp'
             ]);
-            overlayImage = await preloadPlayerImage('/src/assets/images/startScreen/Overlay.webp');
+            overlayImage = await preloadPlayerImage('/src/assets/images/startScreen/Overlay_no_options.webp');
             backgroundImage = await preloadPlayerImage('/src/assets/images/Background/background.webp');
             gameOverOverlayImage = await preloadPlayerImage('/src/assets/images/GameOver/GameOver_Overlay_Lamb.webp');
             showStartScreen();
