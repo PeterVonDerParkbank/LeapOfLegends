@@ -23,6 +23,8 @@ let playerImageWithJetpack;
 let playerJumpImages;
 let overlayImage;
 let backgroundImage;
+let background_short;
+let allowOrientation_asthetics;
 let gameOverOverlayImage;
 let scores;
 let personalbest;
@@ -142,7 +144,7 @@ const GameOverButtons = [
 ];
 
 const leaderboard = new Leaderboard(canvas.width, canvas.height, scaleX, scaleY, backButtonWidth, backButtonHeight);
-const allowOrientationButton = new AllowOrientationButton(100, 300, 200, 100, 'Click to enable\n device orientation');
+const allowOrientationButton = new AllowOrientationButton(canvas.width/2 - 100, 380, 200, 100, 'Click to enable\n device orientation');
 const about = new About(canvas.width, canvas.height, scaleX, scaleY, backButtonWidth, backButtonHeight);
 
 // Initialize Player Info
@@ -223,6 +225,11 @@ async function init() {
             await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame11.webp'),
             await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame12.webp')
         ];
+        overlayImage = await preloadPlayerImage('/src/assets/images/startScreen/Overlay_no_options.webp');
+        backgroundImage = await preloadPlayerImage('/src/assets/images/Background/background.webp');
+        background_short = await preloadPlayerImage('/src/assets/images/Background/background_short.webp')
+        allowOrientation_asthetics = await preloadPlayerImage('/src/assets/images/Background/allowOrientation_asthetic_v2.webp')
+        gameOverOverlayImage = await preloadPlayerImage('/src/assets/images/GameOver/GameOver_Overlay_Lamb.webp');
 
 
         const platformImage = await preloadPlayerImage('/src/assets/images/Tiles/StandardTile.png');
@@ -234,9 +241,6 @@ async function init() {
                 '/src/assets/images/startScreen/StartScreen2.webp',
                 '/src/assets/images/startScreen/StartScreen3.webp'
             ]);
-            overlayImage = await preloadPlayerImage('/src/assets/images/startScreen/Overlay_no_options.webp');
-            backgroundImage = await preloadPlayerImage('/src/assets/images/Background/background.webp');
-            gameOverOverlayImage = await preloadPlayerImage('/src/assets/images/GameOver/GameOver_Overlay_Lamb.webp');
             showStartScreen();
         } else {
             drawAllowOrientationScreen();
@@ -477,7 +481,20 @@ async function drawGameOverScreen() {
 // Draw Allow Orientation Screen
 async function drawAllowOrientationScreen() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(background_short, 0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#2c4245';
+    ctx.font = '40px CustomFont';
+    ctx.textAlign = 'center';
+    ctx.fontWeight = 'bold';
+    ctx.fillText('WELCOME TO', canvas.width / 2, 70);
+    ctx.fillText('LEAP OF LEGENDS',canvas.width / 2, 110)
+
+    ctx.font = '25px CustomFont'
+    ctx.fillText('Please enable device orientation', canvas.width / 2, 170)
+    ctx.fillText('to play the game', canvas.width / 2, 210)
+    ctx.drawImage(playerImage,canvas.width /2 - 25, 250, 50,50)
     allowOrientationButton.display();
+    ctx.drawImage(allowOrientation_asthetics,canvas.width/2 - 100, 380, 200, 100)
 }
 
 // Get Personal Best

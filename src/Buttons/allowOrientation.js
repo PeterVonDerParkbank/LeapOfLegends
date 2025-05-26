@@ -12,11 +12,11 @@ export default class AllowOrientationButton {
         this.element.style.top = `${y}px`;
         this.element.style.width = `${width}px`;
         this.element.style.height = `${height}px`;
-        this.element.style.backgroundColor = '#4CAF50'; // Background color
-        this.element.style.color = 'white'; // Text color
+        this.element.style.backgroundColor = 'transparent'; // Background color
+        this.element.style.color = '#2c4245'; // Text color
         this.element.style.border = 'none'; // No border
         this.element.style.borderRadius = '5px'; // Rounded corners
-        this.element.style.fontSize = '16px'; // Font size
+        this.element.style.font = '20px CustomFont'
         this.element.style.cursor = 'pointer'; // Pointer cursor on hover
         this.element.style.display = 'none'; // Hide button initially
         document.body.appendChild(this.element);
