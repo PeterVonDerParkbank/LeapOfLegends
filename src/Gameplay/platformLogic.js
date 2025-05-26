@@ -59,7 +59,6 @@ export function generatePlatform(platforms, player ,canvas, score) {
             newX < (platform.monster.x + platform.monster.width + buffer) &&
             (newX + platformWidth + buffer) > platform.monster.x;
     });
-    console.log(isOverlapping);
     // if new platform is overlapping a monster shift it up by the height of the monster
     if (isOverlapping) {
         newY = newY - 60 - buffer;

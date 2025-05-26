@@ -25,7 +25,7 @@ export class Jetpack {
 
     activate(player) {
         this.active = true;
-        player.dy = -10; // Give an initial boost
+        player.dy = -11; // Give an initial boost
         player.gravity = 0; // Disable gravity while jetpack is active
         if (player.direction === 'left') {
             player.image = this.playerImageWithJetpack;
