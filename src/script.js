@@ -301,6 +301,10 @@ let frameDuration = [10, 2.5, 2.5]; // Duration for each frame in ticks (assumin
 
 
 async function animateStartScreen() {
+    if (gameStarted || gameOver || showingLeaderboard || showingAbout) {
+        // Hier kein neuer Loop mehr starten
+        return;
+    }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // Draw start screen images, cycling through them. The animation should be smooth and the images should be displayed in a loop, while the first image is displayed again after the last image and for several seconds.
     ctx.drawImage(startScreenImages[startScreenFrame], 0, 0, canvas.width, canvas.height);
@@ -313,10 +317,7 @@ async function animateStartScreen() {
             frameDuration[0] = 240;
         }
     }
-
-    if (!gameStarted && !gameOver && !showingLeaderboard && !showingAbout) {
-        requestAnimationFrame(animateStartScreen);
-    }
+    requestAnimationFrame(animateStartScreen);
 }
 
 // Update Game State
@@ -535,7 +536,6 @@ function showAboutScreen() {
     gameOver = false;
     gameStarted = false;
     showingAbout = true;
-    console.log('About Screen');
     about.draw(ctx, canvas.width, canvas.height);
 }
 
@@ -577,17 +577,13 @@ function handleTouchStart(event) {
         });
     } else if (showingLeaderboard) {
         MenuButtons.forEach(button => {
-            console.log('Checking Menubutton');
             if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
-                console.log('Button clicked');
                 button.action();
             }
         });
     } else if (showingAbout) {
         MenuButtons.forEach(button => {
-            console.log('Checking Menubutton');
             if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
-                console.log('Button clicked');
                 button.action();
             }
         });
