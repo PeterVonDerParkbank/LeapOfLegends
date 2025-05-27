@@ -33,6 +33,7 @@ let playerId = '1';
 let platforms = [];
 let scrolling = false;
 let collisionY = null;
+let targetPlatformY = null;
 const score = new Score();
 const soundManager = new SoundManager();
 soundManager.unlockAudio();
@@ -358,27 +359,31 @@ function update(currentTime) {
         player.x = -player.width;
     }
 
-    if (scrolling || player.jetpackActive ) {
+    const collisionResult = checkCollision(player, platforms, soundManager);
+    if (collisionResult.platformY !== null) {
+        targetPlatformY = collisionResult.platformY;
+    }
+    touchedTrap = collisionResult.touchedTrap;
+
+    if (scrolling || player.jetpackActive || targetPlatformY !== null) {
         try {
-            const result = scrollPlatforms(platforms, player, canvas, delta_time_multiplier, score.score);
+            const result = scrollPlatforms(platforms, player, canvas, targetPlatformY, delta_time_multiplier, score.score);
             platforms = result.platforms;
+            targetPlatformY = result.targetPlatformY;
             scrolling = result.scrolling;
         } catch (error) {
             console.log(error);
         }
     }
+
     platforms.forEach(platform => {
         if (player.dy < 0 && player.y < platform.y && !platform.passed) {
             platform.passed = true;
             score.increment(platform);
         }
     });
-    const collisionResult = checkCollision(player, platforms,soundManager);
-    collisionY = collisionResult.platformY;
-    touchedTrap = collisionResult.touchedTrap;
-    if (collisionY !== null) {
-        scrolling = true;
-    }
+
+    // Check for jetpack collection
     platforms.forEach(platform => {
         if (platform.jetpack && !platform.jetpack.active &&
             player.x < platform.jetpack.x + platform.jetpack.width &&
@@ -390,6 +395,7 @@ function update(currentTime) {
             platform.jetpack.activate(player);
         }
     });
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     //draw background image
     ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
@@ -438,6 +444,7 @@ function startGame() {
     player.jetpackActive = false;
     player.direction = 'left';
     player.image = player.startImage;
+    targetPlatformY = null;
     platforms = [new Platform(canvas.width/2 -50, canvas.height - 150 , 75, 17), new Platform(canvas.width/2 - 50, canvas.height - 250, 75, 17), new Platform(canvas.width/2 - 50, canvas.height - 350, 75, 17), new Platform(canvas.width/2 - 50, canvas.height - 450, 75, 17)];
     platforms.forEach(platform => platform.passed = false);
     previousTime = performance.now();
