@@ -1,6 +1,7 @@
 import Platform from './Elements/platform.js';
 import Leaderboard from './Leaderboard/leaderboard.js';
 import About from './About/about.js';
+import Options from './Options/options.js';
 import AllowOrientationButton from './Buttons/allowOrientation.js';
 import Score from './Score/score.js';
 import SoundManager from './Sound/soundManager.js';
@@ -17,6 +18,7 @@ let gameOver = false;
 let musicStarted = false;
 let showingLeaderboard = false;
 let showingAbout = false;
+let showingOptions = false;
 let touchedTrap = false;
 let playerImage;
 let playerImageWithJetpack;
@@ -109,6 +111,13 @@ const buttons = [
         width: scaleX * 200,
         height: scaleY * 50,
         action: showAboutScreen
+    },
+    {
+        x: scaleX * 480,
+        y: scaleY * 1972,
+        width: scaleX * 250,
+        height: scaleY * 50,
+        action: showOptions
     }
 ];
 const MenuButtons = [
@@ -147,6 +156,7 @@ const GameOverButtons = [
 const leaderboard = new Leaderboard(canvas.width, canvas.height, scaleX, scaleY, backButtonWidth, backButtonHeight);
 const allowOrientationButton = new AllowOrientationButton(canvas.width/2 - 100, 380, 200, 100, 'Click to enable\n device orientation');
 const about = new About(canvas.width, canvas.height, scaleX, scaleY, backButtonWidth, backButtonHeight);
+const options = new Options(canvas.width, canvas.height, scaleX, scaleY, backButtonWidth, backButtonHeight, soundManager);
 
 // Initialize Player Info
 if (userInfo) {
@@ -226,7 +236,7 @@ async function init() {
             await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame11.webp'),
             await preloadPlayerImage('/src/assets/images/Characters/JumppadAnimation/Frame12.webp')
         ];
-        overlayImage = await preloadPlayerImage('/src/assets/images/startScreen/Overlay_no_options.webp');
+        overlayImage = await preloadPlayerImage('/src/assets/images/startScreen/Overlay.webp');
         backgroundImage = await preloadPlayerImage('/src/assets/images/Background/background.webp');
         background_short = await preloadPlayerImage('/src/assets/images/Background/background_short.webp')
         allowOrientation_asthetics = await preloadPlayerImage('/src/assets/images/Background/allowOrientation_asthetic_v2.webp')
@@ -302,7 +312,7 @@ let frameDuration = [10, 2.5, 2.5]; // Duration for each frame in ticks (assumin
 
 
 async function animateStartScreen() {
-    if (gameStarted || gameOver || showingLeaderboard || showingAbout) {
+    if (gameStarted || gameOver || showingLeaderboard || showingAbout || showingOptions) {
         // Hier kein neuer Loop mehr starten
         return;
     }
@@ -449,7 +459,6 @@ function startGame() {
     platforms.forEach(platform => platform.passed = false);
     previousTime = performance.now();
     scrolling = false;
-    lastMouseX = canvas.width / 2;
     if (!musicStarted) {
         setTimeout(() => {
             soundManager.playMusic("bgm");
@@ -546,12 +555,22 @@ function showAboutScreen() {
     about.draw(ctx, canvas.width, canvas.height);
 }
 
+function showOptions() {
+    gameOver = false;
+    gameStarted = false;
+    showingLeaderboard = false;
+    showingAbout = false;
+    showingOptions = true;
+    options.draw(ctx, canvas.width, canvas.height);
+}
+
 // Show Start Screen
 function showStartScreen() {
     showingLeaderboard = false;
     gameStarted = false;
     gameOver = false;
     showingAbout = false;
+    showingOptions = false;
     animateStartScreen();
 }
 
@@ -565,12 +584,14 @@ async function fetchScores() {
 // Handle Touch Start
 function handleTouchStart(event) {
     const rect = canvas.getBoundingClientRect();
-    const x = event.touches[0].clientX - rect.left;
-    const y = event.touches[0].clientY - rect.top;
+    const touch = event.touches[0];
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    
     if (!allowedOrientation) {
         return;
     }
-    if (!gameStarted && !gameOver && !showingLeaderboard && !showingAbout) {
+    if (!gameStarted && !gameOver && !showingLeaderboard && !showingAbout && !showingOptions) {
         buttons.forEach(button => {
             if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
                 button.action();
@@ -582,116 +603,42 @@ function handleTouchStart(event) {
                 button.action();
             }
         });
-    } else if (showingLeaderboard) {
+    } else if (showingLeaderboard || showingAbout || showingOptions) {
         MenuButtons.forEach(button => {
             if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
                 button.action();
             }
         });
-    } else if (showingAbout) {
-        MenuButtons.forEach(button => {
-            if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
-                button.action();
+        if (showingOptions) {
+            const handled = options.handleTouchStart(touch, rect);
+            if (handled) {
+                event.preventDefault();
             }
-        });
+        }
     }
-    event.preventDefault();
 }
 
-function handleMouseDown(event) {
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    if (!allowedOrientation) {
-        return;
-    }
-    if (!gameStarted && !gameOver && !showingLeaderboard && !showingAbout) {
-        buttons.forEach(button => {
-            if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
-                button.action();
-            }
-        });
-    } else if (gameOver) {
-        GameOverButtons.forEach(button => {
-            if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
-                button.action();
-            }
-        });
-    } else if (showingLeaderboard) {
-        MenuButtons.forEach(button => {
-            if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
-                button.action();
-            }
-        });
-    } else if (showingAbout) {
-        MenuButtons.forEach(button => {
-            console.log('Checking Menubutton');
-            if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
-                console.log('Button clicked');
-                button.action();
-            }
-        });
-    }
-    event.preventDefault();
-}
-
-// --- Desktop Drag & Drop Steuerung ---
-let isDragging = false;
-let dragStartX = 0;
-let lastMouseX = null;
-
-/*canvas.addEventListener('mousedown', function(event) {
-    // Nur im Spiel aktiv
-    if (!gameStarted || gameOver) return;
-    isDragging = true;
-    dragStartX = event.clientX;
-});*/
-
-canvas.addEventListener('mousemove', function(event) {
-    if (!gameStarted || gameOver) return;
-    
-    // Speichere die aktuelle Mausposition
-    const currentMouseX = event.clientX;
-    
-    // Beim ersten Bewegen der Maus nur Position setzen, keine Bewegung
-    if (lastMouseX === null) {
-        lastMouseX = currentMouseX;
-        return;
-    }
-    
-    // Berechne Bewegungsdelta
-    const deltaX = currentMouseX - lastMouseX;
-    lastMouseX = currentMouseX;
-    
-    // Bewege Spieler
-    player.x += deltaX;
-    
-    // Richtung für Animation setzen
-    if (deltaX > 0 && player.direction !== 'right') {
-        animateDirectionChange('right');
-    } else if (deltaX < 0 && player.direction !== 'left') {
-        animateDirectionChange('left');
+// Add touch move and end handlers for the sliders
+canvas.addEventListener('touchmove', function(event) {
+    if (showingOptions) {
+        const rect = canvas.getBoundingClientRect();
+        const touch = event.touches[0];
+        options.handleTouchMove(touch, rect);
+        event.preventDefault();
     }
 });
 
-// Event Listeners
-canvas.addEventListener('mouseleave', function() {
-    lastMouseX = null;
+canvas.addEventListener('touchend', function(event) {
+    if (showingOptions) {
+        const touch = event.changedTouches[0];
+        options.handleTouchEnd(touch);
+    }
 });
 
-// Reset beim Wiederbetreten des Fensters
-canvas.addEventListener('mouseenter', function() {
-    lastMouseX = null;
-});
-/*canvas.addEventListener('mouseup', function() {
-    isDragging = false;
-});
-
-canvas.addEventListener('mouseleave', function() {
-    isDragging = false;
-});*/
-canvas.addEventListener('mousedown', handleMouseDown);
+// Keep only touch event listeners
 canvas.addEventListener('touchstart', handleTouchStart);
+
+// Add back the orientation button listener
 allowOrientationButton.addClickListener(async () => {
     allowedOrientation = await checkOrientationPermission();
     if (allowedOrientation) {
