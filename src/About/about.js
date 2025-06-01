@@ -51,7 +51,7 @@ export default class About {
             "Try to reach the highest platform one leap at a time before the Cyclops catches you!",
             "Brought to you by Olympus Prime.",
             "Follow us on X.",
-            "https://x.com/olympusprime"
+            "https://x.com/olympuspr1me"
         ];
 
         texts.forEach(text => {
