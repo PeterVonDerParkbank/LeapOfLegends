@@ -3,6 +3,7 @@ import MonsterFactory from '../Elements/monsterFactory.js';
 import { calculateMaxPlatforms } from '../Gameplay/scrollLogic.js';
 import { Jetpack } from '../Elements/jetpack.js';
 import { Coin } from '../Elements/coin.js';
+import TrapPlatform from '../Elements/trapPlatform.js';
 
 export function drawPlatforms(platforms, ctx) {
     platforms.forEach(platform => {
@@ -34,24 +35,45 @@ export function decrementTrapPlatformCount() {
     trapPlatformCount--;
 }
 
-export function generatePlatform(platforms, player ,canvas, score) {
-    const baseMinPlatformGap = 25; // Minimum vertical gap between platforms
-    const baseMaxPlatformGap = 75; // Maximum vertical gap between platforms
+// Calculate maximum jump height using physics formulas
+function calculateMaxJumpHeight(jumpStrength, gravity) {
+    // Using the formula: h = v0^2 / (2g) where v0 is initial velocity and g is gravity
+    // Negative jumpStrength means upward velocity
+    return Math.abs((jumpStrength * jumpStrength) / (2 * gravity));
+}
+
+export function generatePlatform(platforms, player, canvas, score) {
+    const baseMinPlatformGap = 25;
+    const baseMaxPlatformGap = 75;
     const platformWidth = 75;
     const platformHeight = 17;
 
-    // Increase the gap based on the score
-    const gapIncrease = Math.floor(score / 1500) * 8; // Increase gap by 10 for every 100 points
-    const minPlatformGap = Math.min(80,Math.floor(baseMinPlatformGap + gapIncrease));
-    const maxPlatformGap = Math.min(180,Math.floor(baseMaxPlatformGap + gapIncrease));
+    // Calculate max jump height
+    const maxJumpHeight = calculateMaxJumpHeight(player.jumpStrength, player.gravity);
+    
+    // Increase the gap based on the score, but ensure it doesn't exceed max jump height
+    const gapIncrease = Math.floor(score / 1500) * 8;
+    const minPlatformGap = Math.min(80, Math.floor(baseMinPlatformGap + gapIncrease));
+    const maxPlatformGap = Math.min(Math.floor(maxJumpHeight * 0.85), Math.min(180, Math.floor(baseMaxPlatformGap + gapIncrease)));
 
     let newX, newY;
     let platformType;
     const lastPlatform = platforms[platforms.length - 1];
+    
+    // Get all platforms within potential jump range
+    const reachablePlatforms = platforms.filter(p => {
+        const verticalDist = lastPlatform.y - p.y;
+        return verticalDist > 0 && verticalDist <= maxJumpHeight;
+    });
+
+    // Check if there are any safe platforms (non-trap) within reach
+    const hasReachableSafePlatform = reachablePlatforms.some(p => !(p instanceof TrapPlatform));
+
     newY = lastPlatform.y - (Math.random() * (maxPlatformGap - minPlatformGap) + minPlatformGap);
     newX = Math.random() * (canvas.width - platformWidth);
+
     // Check if new platform is overlapping a monster in platform.monster
-    const buffer = 5; // 5 pixel buffer
+    const buffer = 5;
     const isOverlapping = platforms.some(platform => {
         if (!platform.monster) return false;
         return newY < (platform.monster.y + platform.monster.height + buffer) &&
@@ -59,18 +81,24 @@ export function generatePlatform(platforms, player ,canvas, score) {
             newX < (platform.monster.x + platform.monster.width + buffer) &&
             (newX + platformWidth + buffer) > platform.monster.x;
     });
-    // if new platform is overlapping a monster shift it up by the height of the monster
+
     if (isOverlapping) {
         newY = newY - 60 - buffer;
     }
+
     const determinePlatformType = Math.random();
     const maxPlatforms = calculateMaxPlatforms(score);
     const maxTrapPlatforms = Math.floor(maxPlatforms / 3);
 
-    const movingChance = Math.min(0.2, 0.06 + (score / 100000)); // Increases with score
+    const movingChance = Math.min(0.4, 0.06 + (score / 50000));
     const breakingChance = Math.min(0.2, 0.06 + (score / 100000));
-    const jumppadChance = Math.max(0.02, 0.15 - (score / 50000)); // Decreases with score
-    const trapChance = Math.min(0.02, 0.05 + (score / 100000)); // Increases with score
+    const jumppadChance = Math.max(0.02, 0.15 - (score / 50000));
+    let trapChance = Math.min(0.02, 0.05 + (score / 100000));
+
+    // If there's no reachable safe platform, force this one to be safe
+    if (!hasReachableSafePlatform) {
+        trapChance = 0;
+    }
 
     if (determinePlatformType < movingChance) {
         platformType = 'moving';

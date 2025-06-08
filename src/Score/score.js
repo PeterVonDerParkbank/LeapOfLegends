@@ -16,8 +16,8 @@ export default class Score {
         }
     }
     
-    reset() {
-        this.score = 0;
+    reset(initialScore = 0) {
+        this.score = initialScore;
     }
     
     draw(ctx,canvas,player) {

@@ -87,7 +87,28 @@ async function getTop10() {
     const leaderboardDoc = await leaderboardRef.get();
     if (leaderboardDoc.exists) {
         const leaderboardData = leaderboardDoc.data();
-        return leaderboardData.scores.slice(0, 10) || [];
+        const allScores = leaderboardData.scores || [];
+        
+        // Create a map to track the number of scores per player
+        const playerScoreCount = new Map();
+        const result = [];
+        let currentIndex = 0;
+
+        // Keep processing scores until we have 10 scores or run out of scores
+        while (result.length < 10 && currentIndex < allScores.length) {
+            const score = allScores[currentIndex];
+            const playerCount = playerScoreCount.get(score.playerName) || 0;
+
+            // Only include the score if the player hasn't reached their limit of 3
+            if (playerCount < 1) {
+                result.push(score);
+                playerScoreCount.set(score.playerName, playerCount + 1);
+            }
+
+            currentIndex++;
+        }
+
+        return result;
     } else {
         return [];
     }
