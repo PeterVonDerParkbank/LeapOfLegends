@@ -686,9 +686,6 @@ function handleTouchStart(event) {
                 button.action();
             }
         });
-    } else {
-        player.dy = player.jumpStrength;
-        soundManager.playSound("jump");
     }
 }
 
