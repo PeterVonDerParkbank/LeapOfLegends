@@ -447,7 +447,7 @@ function startGame() {
     gameStarted = true;
     gameOver = false;
     touchedTrap = false;
-    score.reset(10000); // Start with 10000 points
+    score.reset(); // Start with 10000 points
     player.dy = player.jumpStrength;
     player.y = canvas.height - 150;
     player.x = canvas.width / 2 - 25;
