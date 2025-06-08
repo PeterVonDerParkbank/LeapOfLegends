@@ -5,6 +5,7 @@ import Options from './Options/options.js';
 import AllowOrientationButton from './Buttons/allowOrientation.js';
 import Score from './Score/score.js';
 import SoundManager from './Sound/soundManager.js';
+import UpdateNotification from './Elements/UpdateNotification.js';
 import { drawPlatforms } from './Gameplay/platformLogic.js';
 import { scrollPlatforms } from './Gameplay/scrollLogic.js';
 import { checkCollision } from './Gameplay/collisionLogic.js';
@@ -208,6 +209,9 @@ async function ensureFontLoaded() {
     console.log('CustomFont loaded');
 }
 
+// Add after other global variables
+let updateNotification;
+
 // Initialize Game
 async function init() {
     try {
@@ -256,6 +260,17 @@ async function init() {
         } else {
             drawAllowOrientationScreen();
         }
+
+        // Initialize update notification
+        updateNotification = new UpdateNotification(canvas, scaleX, scaleY);
+        if (updateNotification.shouldShow()) {
+            updateNotification.show();
+        }
+
+        // Add touch event listeners
+        canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+        canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+        canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
     } catch (error) {
         console.error('Error loading player image:', error);
     }
@@ -320,6 +335,13 @@ async function animateStartScreen() {
     // Draw start screen images, cycling through them. The animation should be smooth and the images should be displayed in a loop, while the first image is displayed again after the last image and for several seconds.
     ctx.drawImage(startScreenImages[startScreenFrame], 0, 0, canvas.width, canvas.height);
     ctx.drawImage(overlayImage, 0, 0, canvas.width, canvas.height);
+    
+    // Draw update notification if it exists
+    if (updateNotification) {
+        updateNotification.update();
+        updateNotification.draw();
+    }
+    
     startLoop++;
     if (startLoop > frameDuration[startScreenFrame]) {
         startLoop = 0;
@@ -527,16 +549,23 @@ async function getPersonalBest(playerName) {
 
 // Save Score
 async function saveScore(score, userId, userName) {
-    const response = await fetch('https://marsloeller.com/api/score', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ score, userId, userName })
-    });
-
-    if (!response.ok) {
-        console.error('Error saving score');
+    try {
+        const response = await fetch('https://your-server-url/api/score', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ score, userId, userName })
+        });
+        
+        // Store the timestamp of when the user played
+        localStorage.setItem('lastPlayTimestamp', Date.now().toString());
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+    } catch (error) {
+        console.error('Error:', error);
     }
 }
 
@@ -583,38 +612,83 @@ async function fetchScores() {
 
 // Handle Touch Start
 function handleTouchStart(event) {
+    event.preventDefault();
     const rect = canvas.getBoundingClientRect();
-    const touch = event.touches[0];
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
-    
-    if (!allowedOrientation) {
+    const x = (event.touches[0].clientX - rect.left) * (canvas.width / rect.width);
+    const y = (event.touches[0].clientY - rect.top) * (canvas.height / rect.height);
+
+    // Check if click is on update notification close button (check in all screens)
+    if (updateNotification && updateNotification.isClickOnCloseButton(x, y)) {
+        updateNotification.markAsSeen();
         return;
     }
+
+    if (!allowedOrientation) {
+        if (allowOrientationButton.isClicked(x, y)) {
+            checkOrientationPermission();
+        }
+        return;
+    }
+
     if (!gameStarted && !gameOver && !showingLeaderboard && !showingAbout && !showingOptions) {
         buttons.forEach(button => {
-            if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
+            if (x >= button.x && x <= button.x + button.width &&
+                y >= button.y && y <= button.y + button.height) {
+                button.action();
+            }
+        });
+    } else if (showingLeaderboard) {
+        if (leaderboard && typeof leaderboard.handleTouchStart === 'function') {
+            const handled = leaderboard.handleTouchStart(event, rect);
+            if (handled) {
+                event.preventDefault();
+                return;
+            }
+        }
+        MenuButtons.forEach(button => {
+            if (x >= button.x && x <= button.x + button.width &&
+                y >= button.y && y <= button.y + button.height) {
+                button.action();
+            }
+        });
+    } else if (showingAbout) {
+        if (about && typeof about.handleTouchStart === 'function') {
+            const handled = about.handleTouchStart(event, rect);
+            if (handled) {
+                event.preventDefault();
+                return;
+            }
+        }
+        MenuButtons.forEach(button => {
+            if (x >= button.x && x <= button.x + button.width &&
+                y >= button.y && y <= button.y + button.height) {
+                button.action();
+            }
+        });
+    } else if (showingOptions) {
+        if (options && typeof options.handleTouchStart === 'function') {
+            const handled = options.handleTouchStart(event.touches[0], rect);
+            if (handled) {
+                event.preventDefault();
+                return;
+            }
+        }
+        MenuButtons.forEach(button => {
+            if (x >= button.x && x <= button.x + button.width &&
+                y >= button.y && y <= button.y + button.height) {
                 button.action();
             }
         });
     } else if (gameOver) {
         GameOverButtons.forEach(button => {
-            if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
+            if (x >= button.x && x <= button.x + button.width &&
+                y >= button.y && y <= button.y + button.height) {
                 button.action();
             }
         });
-    } else if (showingLeaderboard || showingAbout || showingOptions) {
-        MenuButtons.forEach(button => {
-            if (x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height) {
-                button.action();
-            }
-        });
-        if (showingOptions) {
-            const handled = options.handleTouchStart(touch, rect);
-            if (handled) {
-                event.preventDefault();
-            }
-        }
+    } else {
+        player.dy = player.jumpStrength;
+        soundManager.playSound("jump");
     }
 }
 
@@ -646,6 +720,25 @@ allowOrientationButton.addClickListener(async () => {
         init();
     }
 });
+
+// Add these handlers after handleTouchStart
+function handleTouchMove(event) {
+    event.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+
+    if (showingOptions && options && typeof options.handleTouchMove === 'function') {
+        options.handleTouchMove(event.touches[0], rect);
+    }
+}
+
+function handleTouchEnd(event) {
+    event.preventDefault();
+    if (showingOptions && options && typeof options.handleTouchEnd === 'function') {
+        // Wenn es changedTouches gibt, nehmen wir den ersten, sonst null
+        const touch = event.changedTouches ? event.changedTouches[0] : null;
+        options.handleTouchEnd(touch || { identifier: null });
+    }
+}
 
 // Start Initialization
 init();
