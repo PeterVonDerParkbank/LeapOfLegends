@@ -100,7 +100,7 @@ async function getTop10() {
             const playerCount = playerScoreCount.get(score.playerName) || 0;
 
             // Only include the score if the player hasn't reached their limit of 3
-            if (playerCount < 3) {
+            if (playerCount < 1) {
                 result.push(score);
                 playerScoreCount.set(score.playerName, playerCount + 1);
             }
