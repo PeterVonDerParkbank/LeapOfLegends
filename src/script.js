@@ -5,6 +5,7 @@ import Options from './Options/options.js';
 import AllowOrientationButton from './Buttons/allowOrientation.js';
 import Score from './Score/score.js';
 import SoundManager from './Sound/soundManager.js';
+import UpdateNotification from './Elements/UpdateNotification.js';
 import { drawPlatforms } from './Gameplay/platformLogic.js';
 import { scrollPlatforms } from './Gameplay/scrollLogic.js';
 import { checkCollision } from './Gameplay/collisionLogic.js';
@@ -208,6 +209,9 @@ async function ensureFontLoaded() {
     console.log('CustomFont loaded');
 }
 
+// Add after other global variables
+let updateNotification;
+
 // Initialize Game
 async function init() {
     try {
@@ -255,6 +259,12 @@ async function init() {
             showStartScreen();
         } else {
             drawAllowOrientationScreen();
+        }
+
+        // Initialize update notification
+        updateNotification = new UpdateNotification(canvas, scaleX, scaleY);
+        if (updateNotification.shouldShow()) {
+            updateNotification.show();
         }
     } catch (error) {
         console.error('Error loading player image:', error);
@@ -414,6 +424,11 @@ function update(currentTime) {
     score.draw(ctx,canvas,player);
     previousTime = performance.now();
     requestAnimationFrame(update);
+
+    // Update notification if it exists
+    if (updateNotification) {
+        updateNotification.update();
+    }
 }
 
 // Handle Device Orientation
@@ -527,16 +542,23 @@ async function getPersonalBest(playerName) {
 
 // Save Score
 async function saveScore(score, userId, userName) {
-    const response = await fetch('https://marsloeller.com/api/score', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ score, userId, userName })
-    });
-
-    if (!response.ok) {
-        console.error('Error saving score');
+    try {
+        const response = await fetch('https://your-server-url/api/score', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ score, userId, userName })
+        });
+        
+        // Store the timestamp of when the user played
+        localStorage.setItem('lastPlayTimestamp', Date.now().toString());
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+    } catch (error) {
+        console.error('Error:', error);
     }
 }
 
@@ -583,11 +605,17 @@ async function fetchScores() {
 
 // Handle Touch Start
 function handleTouchStart(event) {
+    event.preventDefault();
     const rect = canvas.getBoundingClientRect();
-    const touch = event.touches[0];
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
-    
+    const x = (event.touches[0].clientX - rect.left) * (canvas.width / rect.width);
+    const y = (event.touches[0].clientY - rect.top) * (canvas.height / rect.height);
+
+    // Check if click is on update notification close button
+    if (updateNotification && updateNotification.isClickOnCloseButton(x, y)) {
+        updateNotification.markAsSeen();
+        return;
+    }
+
     if (!allowedOrientation) {
         return;
     }
@@ -610,7 +638,7 @@ function handleTouchStart(event) {
             }
         });
         if (showingOptions) {
-            const handled = options.handleTouchStart(touch, rect);
+            const handled = options.handleTouchStart(event, rect);
             if (handled) {
                 event.preventDefault();
             }
