@@ -12,13 +12,10 @@ export default class UpdateNotification {
         this.animationSpeed = 5;
         
         // Content
-        this.updateVersion = "1.0.1";
-        this.updateDate = new Date("2025-06-08").getTime(); // Update this with your actual update date
+        this.updateVersion = "1.0.2";
+        this.updateDate = new Date("2025-06-11").getTime(); // Update this with your actual update date
         this.updateNotes = [
-            "• Added this notification banner",
-            "• Improved platform generation, so that impossible jumps should no longer happen",
-            "• Top10 only shows 1 score per player",
-            "• Increased moving platform spawn rate for higher scores",
+            "• Fixed a Bug where the score was not saved -- sorry for the inconvenience"
         ];
 
         // Style constants
