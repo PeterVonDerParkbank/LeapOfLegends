@@ -550,7 +550,7 @@ async function getPersonalBest(playerName) {
 // Save Score
 async function saveScore(score, userId, userName) {
     try {
-        const response = await fetch('https://your-server-url/api/score', {
+        const response = await fetch('https://marsloeller.com/api/score', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
