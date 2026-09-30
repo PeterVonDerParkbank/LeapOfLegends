@@ -247,7 +247,7 @@ async function init() {
         gameOverOverlayImage = await preloadPlayerImage('/src/assets/images/GameOver/GameOver_Overlay_Lamb.webp');
 
 
-        const platformImage = await preloadPlayerImage('/src/assets/images/Tiles/StandardTile.png');
+        const platformImage = await preloadPlayerImage('/src/assets/images/Tiles/StandardTile.webp');
         Platform.prototype.image = platformImage; // Setze das vorab geladene Bild in der Plattform-Klasse
         allowedOrientation = await checkOrientationPermission();
         if (allowedOrientation) {
@@ -538,7 +538,7 @@ async function drawAllowOrientationScreen() {
 
 // Get Personal Best
 async function getPersonalBest(playerName) {
-    const response = await fetch(`https://marsloeller.com/api/personalbest?userName=${playerName}`);
+    const response = await fetch(`/api/personalbest?userName=${encodeURIComponent(playerName)}`);
     if (response.ok) {
         const data = await response.json();
         return data.personalBest;
@@ -550,7 +550,7 @@ async function getPersonalBest(playerName) {
 // Save Score
 async function saveScore(score, userId, userName) {
     try {
-        const response = await fetch('https://marsloeller.com/api/score', {
+        const response = await fetch('/api/score', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -604,7 +604,7 @@ function showStartScreen() {
 }
 
 async function fetchScores() {
-    const response = await fetch('https://marsloeller.com/api/top10');
+    const response = await fetch('/api/top10');
     const data = await response.json();
     scores = data.top10;
     return scores;

@@ -88,6 +88,8 @@ ipython_config.py
 # .python-version
 .env
 Firebase_ServiceAccount.json
+.env.*
+!.env.example
 # pipenv
 #   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
 #   However, in case of collaboration, if having platform-specific dependencies or dependencies
@@ -162,3 +164,4 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 node_modules/
+/jumpgame-upload.tar.gz

@@ -15,7 +15,7 @@ export default class Leaderboard {
 
     async fetchScores() {
 
-        const response = await fetch('https://marsloeller.com/api/top10');
+        const response = await fetch('/api/top10');
         const data = await response.json();
         this.scores = data.top10;
     }
