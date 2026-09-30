@@ -7,7 +7,13 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Laden der Service Account Credentials
-const serviceAccount = JSON.parse(readFileSync(process.env.VITE_FIREBASE_SERVICE_ACCOUNT, 'utf8'));
+// Server secrets must not use Vite's client-visible VITE_ prefix.
+// Keep the old variable working while existing deployments migrate.
+const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT || process.env.VITE_FIREBASE_SERVICE_ACCOUNT;
+if (!serviceAccountPath) {
+    throw new Error('Set FIREBASE_SERVICE_ACCOUNT to the service account JSON path.');
+}
+const serviceAccount = JSON.parse(readFileSync(serviceAccountPath, 'utf8'));
 
 // Initialisieren der Firebase Admin SDK
 admin.initializeApp({
@@ -16,6 +22,7 @@ admin.initializeApp({
 
 const db = admin.firestore();
 const app = express();
+app.disable('x-powered-by');
 
 // Update CORS configuration
 app.use(cors({
@@ -24,7 +31,8 @@ app.use(cors({
     allowedHeaders: ['Content-Type']
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '8kb' }));
+app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
 async function saveScoreInLeaderboard(score, userId, userName) {
     const leaderboardRef = db.collection('leaderboard').doc('top100');
@@ -114,36 +122,6 @@ async function getTop10() {
     }
 }
 
-// Define resetLeaderboard function
-async function resetLeaderboard() {
-    const leaderboardRef = db.collection('leaderboard').doc('top100');
-    const leaderboardDoc = await leaderboardRef.get();
-    if (leaderboardDoc.exists) {
-        const scores = [];
-        await leaderboardRef.update({ scores });
-    } else {
-        await leaderboardRef.set({ scores: [] });
-    }
-}
-
-async function resetPlayerScores() {
-    try {
-        const collectionRef = db.collection('players');
-        const snapshot = await getDocs(collectionRef);
-    
-        const updatePromises = snapshot.docs.map(async (docSnapshot) => {
-          const docRef = db.doc('players',docSnapshot.id);
-          await updateDoc(docRef, { scores: [] });
-          console.log(`Document ${docSnapshot.id} updated successfully.`);
-        });
-    
-        await Promise.all(updatePromises);
-        return 'Done'
-      } catch (error) {
-        return error;
-      }
-}
-
 // Define API endpoints
 app.get('/api/top10', async (req, res) => {
     try {
@@ -185,15 +163,7 @@ app.post('/api/score', async (req, res) => {
 });
 
 
-app.get('/api/resetLeaderboard', async (req, res) => {
-    try {
-        await resetLeaderboard()
-        res.status(200).send('Success!')
-    } catch (error) {
-        res.status(500).send('Error resetting Leaderboard: ' + error.message);
-    }
-});
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+const server = app.listen(PORT, '127.0.0.1', () => {
+  console.log(`API is running on http://127.0.0.1:${server.address().port}`);
 });

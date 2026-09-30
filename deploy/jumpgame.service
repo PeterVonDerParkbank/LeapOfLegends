@@ -1,0 +1,27 @@
+[Unit]
+Description=JumpGame API
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=10
+
+[Service]
+Type=simple
+User=jumpgame
+Group=jumpgame
+WorkingDirectory=/var/www/jumpGame
+Environment=NODE_ENV=production
+Environment=PORT=3000
+EnvironmentFile=/etc/jumpgame.env
+ExecStart=/usr/bin/node /var/www/jumpGame/src/Firebase/server.js
+Restart=always
+RestartSec=5
+TimeoutStopSec=20
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

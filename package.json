@@ -10,8 +10,11 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:all": "concurrently --kill-others \"npm run dev\" \"npm run server\"",
+    "build": "node scripts/build.mjs",
+    "test": "node --test",
     "server": "node ./src/Firebase/server.js",
-    "start": "concurrently \"npm run dev\" \"npm run server\""
+    "start": "npm run server"
   },
   "devDependencies": {
     "concurrently": "^9.0.1"
