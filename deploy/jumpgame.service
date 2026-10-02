@@ -13,7 +13,7 @@ WorkingDirectory=/var/www/jumpGame
 Environment=NODE_ENV=production
 Environment=PORT=3000
 EnvironmentFile=/etc/jumpgame.env
-ExecStart=/usr/bin/node /var/www/jumpGame/src/Firebase/server.js
+ExecStart=/opt/nodejs/node24/bin/node /var/www/jumpGame/src/Firebase/server.js
 Restart=always
 RestartSec=5
 TimeoutStopSec=20
